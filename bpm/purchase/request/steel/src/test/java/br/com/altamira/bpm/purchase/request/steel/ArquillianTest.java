@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +31,8 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class ArquillianTest {
 
-	private static final String PROCESS_DEFINITION_KEY = "steel";
+	private static final String PROCESS_DEFINITION_KEY_STEEL = "br.com.altamira.bpm.purchase.request.steel";
+	private static final String PROCESS_DEFINITION_KEY_ORDER = "br.com.altamira.bpm.purchase.request.order";
 
 	@Deployment
 	public static WebArchive createDeployment() {
@@ -50,8 +52,7 @@ public class ArquillianTest {
 				// enable CDI
 				.addAsWebResource("WEB-INF/beans.xml", "WEB-INF/beans.xml")
 				// boot JPA persistence unit
-				.addAsResource("META-INF/persistence.xml",
-						"META-INF/persistence.xml")
+				//.addAsResource("META-INF/persistence.xml", "META-INF/persistence.xml")
 				// add your own classes (could be done one by one as well)
 				.addPackages(false,
 						"br.com.altamira.bpm.purchase.request.steel") // not
@@ -78,15 +79,23 @@ public class ArquillianTest {
 	public void testProcessExecution() throws Exception {
 		cleanUpRunningProcessInstances();
 
-		ProcessInstance processInstance = processEngine.getRuntimeService()
-				.startProcessInstanceByKey(PROCESS_DEFINITION_KEY);
+		HashMap<String, Object> processVariables = new HashMap<String, Object>();
+		
+		processVariables.put("requestId", "1");
+		
+		// Create new request
+		processEngine.getRuntimeService().startProcessInstanceByKey(PROCESS_DEFINITION_KEY_STEEL, processVariables);
 
-		assertEquals(1,
-				processEngine.getRuntimeService().createExecutionQuery()
-						.processInstanceId(processInstance.getId()).count());
+		// Check if a request process was done
+		assertEquals(1, processEngine.getHistoryService().createHistoricProcessInstanceQuery().processDefinitionKey(PROCESS_DEFINITION_KEY_STEEL).count());
+		
+		// Check if a order process is instantiated by REQUEST_CREATED_MESSAGE
+		assertEquals(1, processEngine.getRuntimeService().createExecutionQuery().processDefinitionKey(PROCESS_DEFINITION_KEY_ORDER).count());
+		
 	}
 
-	@Resource(mappedName = "java:jboss/mail/Default")
+	//@Resource(mappedName = "java:jboss/mail/Default")
+	@Resource(lookup = "java:jboss/mail/Default")
 	private Session mailSession;
 
 	// private static final String HOST = "mail.example.org";
@@ -127,7 +136,16 @@ public class ArquillianTest {
 	private void cleanUpRunningProcessInstances() {
 		List<ProcessInstance> runningInstances = processEngine
 				.getRuntimeService().createProcessInstanceQuery()
-				.processDefinitionKey(PROCESS_DEFINITION_KEY).list();
+				.processDefinitionKey(PROCESS_DEFINITION_KEY_STEEL).list();
+		for (ProcessInstance processInstance : runningInstances) {
+			processEngine.getRuntimeService().deleteProcessInstance(
+					processInstance.getId(),
+					"deleted to have a clean environment for Arquillian");
+		}
+
+		runningInstances = processEngine
+				.getRuntimeService().createProcessInstanceQuery()
+				.processDefinitionKey(PROCESS_DEFINITION_KEY_ORDER).list();
 		for (ProcessInstance processInstance : runningInstances) {
 			processEngine.getRuntimeService().deleteProcessInstance(
 					processInstance.getId(),

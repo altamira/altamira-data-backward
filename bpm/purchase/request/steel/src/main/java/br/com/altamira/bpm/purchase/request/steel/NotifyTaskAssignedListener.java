@@ -3,6 +3,7 @@ package br.com.altamira.bpm.purchase.request.steel;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.inject.Named;
 import javax.mail.Session;
 import javax.mail.Message;
 import javax.mail.Transport;
@@ -19,10 +20,13 @@ import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.identity.User;
 import org.camunda.bpm.engine.impl.context.Context;
 
+@Named("Notify")
 public class NotifyTaskAssignedListener implements TaskListener {
 	
-	//@Resource(lookup = "java:jboss/mail/Default")
-	@Resource(name = "java:jboss/mail/Default")
+	private static final String RESOURCE_NAME = "java:jboss/mail/Default";
+	
+	@Resource(lookup = RESOURCE_NAME)
+	//@Resource(mappedName = RESOURCE_NAME)
 	private Session mailSession;
 	
 	// TODO: Set Mail Server Properties
@@ -38,11 +42,11 @@ public class NotifyTaskAssignedListener implements TaskListener {
 		String taskId = delegateTask.getId();
 
 		if (mailSession == null) {
-			LOGGER.log(Level.WARNING, "RESOURCE INJECTION FAIL, DO IT MANUAL : " + "java:jboss/mail/Default");
+			LOGGER.log(Level.WARNING, "RESOURCE INJECTION FAIL, DO IT MANUAL : " + RESOURCE_NAME);
 			try {
 				InitialContext ctx;
 				ctx = new InitialContext();
-	            mailSession = (Session) ctx.lookup("java:jboss/mail/Default");
+	            mailSession = (Session) ctx.lookup(RESOURCE_NAME);
 			} catch (NamingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -58,7 +62,8 @@ public class NotifyTaskAssignedListener implements TaskListener {
 			if (user != null) {
 
 				// Get Email Address from User Profile
-				String recipient = user.getEmail();
+				//String recipient = user.getEmail();
+				String recipient = "gerencia.ti@altamira.com.br";
 
 				if (recipient != null && !recipient.isEmpty()) {
 
