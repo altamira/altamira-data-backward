@@ -29,11 +29,7 @@ public class NotifyTaskAssignedListener implements TaskListener {
 	//@Resource(mappedName = RESOURCE_NAME)
 	private Session mailSession;
 	
-	// TODO: Set Mail Server Properties
-	private static final String HOST =  "mail.example.org";
 	private static final String USER = "admin@example.org";
-	private static final String PWD = "toomanysecrets";
-
 	private final static Logger LOGGER = Logger.getLogger(NotifyTaskAssignedListener.class.getName());
 
 	public void notify(DelegateTask delegateTask) {
@@ -42,7 +38,7 @@ public class NotifyTaskAssignedListener implements TaskListener {
 		String taskId = delegateTask.getId();
 
 		if (mailSession == null) {
-			LOGGER.log(Level.WARNING, "RESOURCE INJECTION FAIL, DO IT MANUAL : " + RESOURCE_NAME);
+			LOGGER.log(Level.WARNING, "Resource injection fail '" + RESOURCE_NAME + "', do it manually by context.lookup.");
 			try {
 				InitialContext ctx;
 				ctx = new InitialContext();

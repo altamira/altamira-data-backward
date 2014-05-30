@@ -6,10 +6,7 @@ import java.util.logging.Logger;
 import javax.inject.Named;
 
 import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
-import org.camunda.bpm.engine.delegate.JavaDelegate;
-import org.camunda.bpm.engine.delegate.TaskListener;
 
 @Named("MergeRequest")
 public class MergeRequestListener implements ExecutionListener  {
