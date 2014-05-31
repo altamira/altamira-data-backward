@@ -1,41 +1,67 @@
 package br.com.altamira.bpm.purchase.request.steel;
 
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.inject.Inject;
 import javax.inject.Named;
-import javax.mail.Session;
-import javax.mail.Message;
-import javax.mail.Transport;
 import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.annotation.Resource;
 
+import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.IdentityService;
-import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.delegate.TaskListener;
+import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.JavaDelegate;
+import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.identity.User;
 import org.camunda.bpm.engine.impl.context.Context;
+import org.camunda.bpm.engine.runtime.Execution;
 
-@Named("NotifyUser")
-public class NotifyTaskAssignedListener implements TaskListener {
+import javax.annotation.Resource;
+
+import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.camunda.bpm.engine.delegate.TaskListener;
+
+@Named("NotifyOrderConfirmationPending")
+public class NotifyOrderConfirmationPending implements JavaDelegate {
 	
 	private static final String RESOURCE_NAME = "java:jboss/mail/Default";
 	
-	@Resource(lookup = RESOURCE_NAME)
-	//@Resource(mappedName = RESOURCE_NAME)
+	@Resource(mappedName = RESOURCE_NAME)
 	private Session mailSession;
 	
 	private static final String FROM_USER = "admin@example.org";
-	private final static Logger LOGGER = Logger.getLogger(NotifyTaskAssignedListener.class.getName());
+	
+	@Inject
+	private HistoryService historyService;
+	
+	@Inject
+	private RuntimeService runtimeService;
+	
+	private final static Logger LOGGER = Logger.getLogger(NotifyOrderConfirmationPending.class.getName());
 
-	public void notify(DelegateTask delegateTask) {
-
-		String assignee = delegateTask.getAssignee();
-		String taskId = delegateTask.getId();
+	@Override
+	public void execute(DelegateExecution execution) throws Exception {
+		
+		
+		LOGGER.info("A Order Confirmation Pending Mail Notification was sent for Order " + execution.getVariable("orderId"));
+		
+		/*
+		HistoricTaskInstance task = historyService.createHistoricTaskInstanceQuery()
+				.activityInstanceIdIn(execution.getCurrentActivityId())
+				.taskDefinitionKey("CheckOutPurchaseOrderUserTask")
+				.singleResult();
+		
+		String assignee = task.getAssignee();
+		String taskId = execution.getId();
 
 		if (mailSession == null) {
 			LOGGER.warning("Resource injection fail '" + RESOURCE_NAME + "', do it manually by context.lookup.");
@@ -61,31 +87,6 @@ public class NotifyTaskAssignedListener implements TaskListener {
 				String recipient = user.getEmail();
 
 				if (recipient != null && !recipient.isEmpty()) {
-
-					/*Email email = new SimpleEmail();
-					email.setHostName(HOST);
-					email.setAuthentication(USER, PWD);
-
-					try {
-						email.setFrom("noreply@camunda.org");
-						email.setSubject("Task assigned: "
-								+ delegateTask.getName());
-						email.setMsg("Please complete: http://localhost:8080/camunda/app/tasklist/default/#/task/"
-								+ taskId);
-
-						email.addTo(recipient);
-
-						email.send();
-						LOGGER.info("Task Assignment Email successfully sent to user '"
-								+ assignee
-								+ "' with address '"
-								+ recipient
-								+ "'.");
-
-					} catch (Exception e) {
-						LOGGER.log(Level.WARNING,
-								"Could not send email to assignee", e);
-					}*/
 					
 		            try    {
 		                MimeMessage m = new MimeMessage(mailSession);
@@ -94,13 +95,13 @@ public class NotifyTaskAssignedListener implements TaskListener {
 
 		                m.setFrom(from);
 		                m.setRecipients(Message.RecipientType.TO, to);
-		                m.setSubject(delegateTask.getName());
+		                m.setSubject("Pedido " + execution.getVariable("orderId") + " Pendente de Confirmacao");
 		                m.setSentDate(new java.util.Date());
-		                m.setContent("<html><head></head><body><h1>" + delegateTask.getName() + "</h1><p>Uma nova tarefa foi atribuida a você.<br><br>Para executa-la <a href=\"http://localhost:8080/camunda/app/tasklist/default/#/task/"
+		                m.setContent("<html><head></head><body><h1>" + task.getName() + "</h1><p>O Pedido " + execution.getVariable("orderId") + " esta pendente de confirmacao de recebimento.<br><br>Para executa-la <a href=\"http://localhost:8080/camunda/app/tasklist/default/#/task/"
 								+ taskId + "\">clique aqui</a>.</p></body></html>", "text/html;charset=utf-8");
 		                Transport.send(m);
 		                LOGGER.log(Level.INFO, "Task Assigned Mail Notify sent!");
-		                LOGGER.info("A Task Assignment Mail Notify of '" + delegateTask.getName() + "' was successfully sent to user '"
+		                LOGGER.info("A Order Confirmation Pending Mail Notification of order '" + execution.getVariable("orderId") + "' was successfully sent to user '"
 								+ assignee
 								+ "' with address '"
 								+ recipient
@@ -122,8 +123,8 @@ public class NotifyTaskAssignedListener implements TaskListener {
 						+ "', user is not enrolled with identity service.");
 			}
 
-		}
+		}*/
 
 	}
-
+		
 }

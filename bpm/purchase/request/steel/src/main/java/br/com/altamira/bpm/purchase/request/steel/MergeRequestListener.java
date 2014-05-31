@@ -15,7 +15,7 @@ public class MergeRequestListener implements ExecutionListener  {
 
 	@Override
 	public void notify(DelegateExecution execution) throws Exception {
-		LOGGER.log(Level.WARNING, "A NEW REQUEST WAS MERGED TO CURRENT QUOTATION. Request ID: " + execution.getVariable("REQUEST_ID"));
+		LOGGER.info("A NEW REQUEST WAS MERGED TO CURRENT QUOTATION. Request ID: " + execution.getVariable("REQUEST_ID"));
 	}
 
 }
