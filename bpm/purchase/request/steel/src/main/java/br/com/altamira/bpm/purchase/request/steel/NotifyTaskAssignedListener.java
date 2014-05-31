@@ -20,7 +20,7 @@ import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.identity.User;
 import org.camunda.bpm.engine.impl.context.Context;
 
-@Named("Notify")
+@Named("NotifyUser")
 public class NotifyTaskAssignedListener implements TaskListener {
 	
 	private static final String RESOURCE_NAME = "java:jboss/mail/Default";
@@ -38,7 +38,7 @@ public class NotifyTaskAssignedListener implements TaskListener {
 		String taskId = delegateTask.getId();
 
 		if (mailSession == null) {
-			LOGGER.log(Level.WARNING, "Resource injection fail '" + RESOURCE_NAME + "', do it manually by context.lookup.");
+			LOGGER.warning("Resource injection fail '" + RESOURCE_NAME + "', do it manually by context.lookup.");
 			try {
 				InitialContext ctx;
 				ctx = new InitialContext();

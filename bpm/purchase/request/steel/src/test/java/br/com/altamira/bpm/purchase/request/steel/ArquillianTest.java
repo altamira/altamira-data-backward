@@ -81,7 +81,7 @@ public class ArquillianTest {
 
 		HashMap<String, Object> processVariables = new HashMap<String, Object>();
 		
-		processVariables.put("requestId", "1");
+		processVariables.put("REQUEST_ID", "1");
 		
 		// Create new request
 		processEngine.getRuntimeService().startProcessInstanceByKey(PROCESS_DEFINITION_KEY_STEEL, processVariables);
