@@ -1,6 +1,5 @@
 package br.com.altamira.bpm.purchase.request.steel;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Named;

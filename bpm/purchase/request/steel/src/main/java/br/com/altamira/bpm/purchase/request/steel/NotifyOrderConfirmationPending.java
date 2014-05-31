@@ -1,34 +1,15 @@
 package br.com.altamira.bpm.purchase.request.steel;
 
-import java.util.HashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.mail.Address;
-import javax.mail.Message;
 import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
 import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
-import org.camunda.bpm.engine.history.HistoricTaskInstance;
-import org.camunda.bpm.engine.identity.User;
-import org.camunda.bpm.engine.impl.context.Context;
-import org.camunda.bpm.engine.runtime.Execution;
-
 import javax.annotation.Resource;
-
-import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.delegate.TaskListener;
 
 @Named("NotifyOrderConfirmationPending")
 public class NotifyOrderConfirmationPending implements JavaDelegate {
