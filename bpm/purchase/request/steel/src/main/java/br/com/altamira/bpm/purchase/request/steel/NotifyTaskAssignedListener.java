@@ -51,7 +51,7 @@ public class NotifyTaskAssignedListener implements TaskListener {
 			try {
 				InitialContext ctx;
 				ctx = new InitialContext();
-	            mailSession = (Session) ctx.lookup(RESOURCE_NAME);
+				mailSession = (Session) ctx.lookup(RESOURCE_NAME);
 			} catch (NamingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -103,14 +103,15 @@ public class NotifyTaskAssignedListener implements TaskListener {
 
 		                m.setFrom(from);
 		                m.setRecipients(Message.RecipientType.TO, to);
-		                m.setSubject(delegateTask.getName());
+		                m.setSubject(delegateTask.getName().replace("\n", "").replace("\r", ""));
 		                m.setSentDate(new java.util.Date());
 		                
 		                Map<String, Object> processVariables = delegateTask.getVariables();
 		                processVariables.put("task", delegateTask);
 		                
 		                JadeConfiguration config = new JadeConfiguration();
-
+		                config.setPrettyPrint(true);
+		                
 		                TemplateLoader loader = new ClasspathTemplateLoader();
 		                config.setTemplateLoader(loader);
 		                

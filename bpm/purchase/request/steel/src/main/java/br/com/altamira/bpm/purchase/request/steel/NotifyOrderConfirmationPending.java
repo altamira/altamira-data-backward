@@ -32,7 +32,6 @@ public class NotifyOrderConfirmationPending implements JavaDelegate {
 	@Override
 	public void execute(DelegateExecution execution) throws Exception {
 		
-		
 		LOGGER.info("A Order Confirmation Pending Mail Notification was sent for Order " + execution.getVariable("orderId"));
 		
 		/*
