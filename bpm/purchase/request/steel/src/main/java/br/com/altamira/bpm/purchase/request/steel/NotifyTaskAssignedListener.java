@@ -1,5 +1,7 @@
 package br.com.altamira.bpm.purchase.request.steel;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,6 +21,13 @@ import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.identity.User;
 import org.camunda.bpm.engine.impl.context.Context;
+
+import de.neuland.jade4j.Jade4J;
+import de.neuland.jade4j.JadeConfiguration;
+import de.neuland.jade4j.exceptions.JadeCompilerException;
+import de.neuland.jade4j.template.ClasspathTemplateLoader;
+import de.neuland.jade4j.template.JadeTemplate;
+import de.neuland.jade4j.template.TemplateLoader;
 
 @Named("NotifyUser")
 public class NotifyTaskAssignedListener implements TaskListener {
@@ -96,8 +105,25 @@ public class NotifyTaskAssignedListener implements TaskListener {
 		                m.setRecipients(Message.RecipientType.TO, to);
 		                m.setSubject(delegateTask.getName());
 		                m.setSentDate(new java.util.Date());
-		                m.setContent("<html><head></head><body><h1>" + delegateTask.getName() + "</h1><p>Uma nova tarefa foi atribuida a você.<br><br>Para executa-la <a href=\"http://localhost:8080/camunda/app/tasklist/default/#/task/"
-								+ taskId + "\">clique aqui</a>.</p></body></html>", "text/html;charset=utf-8");
+		                
+		                Map<String, Object> processVariables = delegateTask.getVariables();
+		                processVariables.put("task", delegateTask);
+		                
+		                JadeConfiguration config = new JadeConfiguration();
+
+		                TemplateLoader loader = new ClasspathTemplateLoader();
+		                config.setTemplateLoader(loader);
+		                
+		                JadeTemplate template = config.getTemplate("NotifyTaskAssigned");
+
+		                String html = config.renderTemplate(template, processVariables);
+		                
+		                //String html = Jade4J.render("./NotifyTaskAssigned.jade", processVariables);
+		                
+		                m.setContent(html, "text/html;charset=utf-8");
+		                /*m.setContent("<html><head></head><body><h1>" + delegateTask.getName() + "</h1><p>Uma nova tarefa foi atribuida a você.<br><br>Para executa-la <a href=\"http://localhost:8080/camunda/app/tasklist/default/#/task/"
+								+ taskId + "\">clique aqui</a>.</p></body></html>", "text/html;charset=utf-8");*/
+
 		                Transport.send(m);
 		                LOGGER.log(Level.INFO, "Task Assigned Mail Notify sent!");
 		                LOGGER.info("A Task Assignment Mail Notify of '" + delegateTask.getName() + "' was successfully sent to user '"
@@ -108,9 +134,15 @@ public class NotifyTaskAssignedListener implements TaskListener {
 		            }
 		            catch (javax.mail.MessagingException e)
 		            {
+		                LOGGER.warning("Error in Sending Mail: " + e.getMessage());
 		                e.printStackTrace();
-		                LOGGER.log(Level.WARNING, "Error in Sending Mail: "+e);
-		            }					
+		            } catch (JadeCompilerException e) {
+		            	LOGGER.warning("Error in Sending Mail: " + e.getMessage());
+		            	e.printStackTrace();
+					} catch (IOException e) {
+						LOGGER.warning("IO Exception: " + e.getMessage());
+						e.printStackTrace();
+					}					
 
 				} else {
 					LOGGER.warning("Not sending email to user " + assignee
