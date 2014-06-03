@@ -1,196 +1,121 @@
-<!DOCTYPE HTML>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core">
 
-  <h:head>
-    <f:metadata>
-      <f:viewParam id="processDefinitionKey" name="processDefinitionKey" />
-      <f:viewParam id="callbackUrl" name="callbackUrl" />
-      <f:event type="preRenderView"
-        listener="#{camunda.taskForm.startProcessInstanceByKeyForm(processDefinitionKey, callbackUrl)}" />
-    </f:metadata>
-    
-    <h:outputStylesheet library="webjars/bootstrap/2.3.2/css" name="bootstrap.css"/>
-    <!-- if you need it - it is right there: -->
-    <h:outputScript type="text/javascript" library="webjars/bootstrap/2.3.2/js" name="bootstrap.js" />    
-    
-    
-    <title>Start Process: #{processDefinitionKey}</title>
-  </h:head>
-  <h:body>
-    <!--<div class="container">
-	    <h:form id="someForm">
-	      <fieldset>
-	        <legend>Start Process: #{processDefinitionKey}</legend>
-		      <p>
-		      	Here you would put the actual form to start the process in some
-        		design normally either matching your task list or your business
-        		application (or both in the best case).
-        	</p>
-		      <p>
-		        You can invoke this form through the camunda tasklist
-		        by setting the formKey of a Start Task to 'app:forms/start-form.jsf'.
-		      </p>
-					<p>		       
-			      <label>Name</label>
-			      <h:inputText disabled="false" id="name" value="#{processVariables['name']}" />
-			    </p>
-		      <h:commandButton id="submit_button" value="Start Process ???"
-		        action="#{camunda.taskForm.completeProcessInstanceForm()}" styleClass="btn btn-primary" />
-	      </fieldset>        
-	    </h:form>
-    </div> -->
-    
-    <script type="text/ng-template" id="myModalContent.html">
-        <div class="modal-header">
-            <h4>{{modal.title}}</h4>
-        </div>
-        <div class="modal-body">
-          <form name="request_form" role="form" novalidate>
-            <div class="form-group">
-              <label class="col-xs-3 radio-inline"><input type="radio" name="tipo" id="tipoBobina" ng-model="modal.item.cut" value="B" ng-change="changedCut()">Bobina</label>
-              <label class="radio-inline"><input type="radio" name="fina" id="finaQuente" ng-model="modal.item.material.lamination" value="FQ">Fina Quente</label><br>
-            </div>
-            <div class="form-group">
-              <label class="col-xs-3 radio-inline"><input type="radio" name="tipo" id="tipoChapa" ng-model="modal.item.cut" value="C" ng-change="changedCut()">Chapa</label>
-            <label class="radio-inline"><input type="radio" name="fina" id="finaFrio" ng-model="modal.item.material.lamination" value="FF">Fina Frio</label>
-          </div>
-            <div class="form-group">
-              <label for="treatment">Tratamento</label>
-              <select id="treatment" class="form-control" ng-model="modal.item.material.treatment" ng-options="t.value as t.desc for t in modal.treatments"></select>
-            </div>
-            <div ng-class="{'form-group' : true, 'has-error' : request_form.otherThicknesses.$dirty && request_form.otherThicknesses.$invalid}">
-              <label for="thickness">Espessura (mm)</label>
-              <select id="thickness" class="form-control" ng-model="modal.item.material.thickness" ng-options="t.value as t.desc for t in modal.thicknesses" ng-change="changedThickness()"></select>
-              <p class="help-block" ng-show="modal.showOtherThickness">
-                <input type="number" class="form-control" id="otherThicknesses" name="otherThicknesses" ng-model="modal.item.otherThickness" placeholder="Nova espessura..." min='0.10' max='9.99' required>
-                <span class="help-block" ng-show="request_form.otherThicknesses.$dirty && request_form.otherThicknesses.$invalid">Valor inválido para "Espessura"!</span>
-              <p>
-            </div>
-            <div ng-class="{'form-group' : true, 'has-error' : request_form.otherWidth.$dirty && request_form.otherWidth.$invalid}">
-              <label for="width">Largura (mm)</label>
-              <select id="width" class="form-control" ng-model="modal.item.material.width" ng-options="w for w in modal.widths" ng-change="changedWidth()"></select>
-              <p class="help-block" ng-show="modal.showOtherWidth">
-                <input type="number" class="form-control" id="otherWidth" name="otherWidth" ng-model="modal.item.otherWidth" placeholder="Nova largura..." min='20' max='3000' required>
-                <span class="help-block" ng-show="request_form.otherWidth.$dirty && request_form.otherWidth.$invalid">Valor inválido para "Largura"!</span>
-              <p>
-            </div>
-            <div ng-class="{'form-group' : true, 'has-error' : request_form.otherLength.$dirty && request_form.otherLength.$invalid}">
-              <label for="length">Comprimento (mm)</label>
-              <select id="length" class="form-control" ng-model="modal.item.material.length" ng-options="l for l in modal.lengths" ng-change="changedLength()" ng-disabled="modal.item.cut === 'B'"></select>
-              <p class="help-block" ng-show="modal.showOtherLength">
-              <input type="number" class="form-control" id="otherLength" name="otherLength"
-                ng-model="modal.item.otherLength" placeholder="Novo comprimento..." min='0' max='3000'>
-                <span class="help-block" ng-show="request_form.otherLength.$dirty && request_form.otherLength.$invalid">Valor inválido para "Comprimento"!</span>
-              <p>
-            </div>
-            <div ng-class="{'form-group' : true, 'has-error' : request_form.weight.$dirty && request_form.weight.$invalid}">
-              <label for="weight">Peso (Kg)</label>
-              <input id="weight" name="weight" type="number" class="form-control" ng-model="modal.item.weight" placeholder="Peso" min='1' integer required>
-              <span class="help-block" ng-show="request_form.weight.$dirty && request_form.weight.$invalid">Valor inválido para "Peso"!</span>
-            </div>
-            <div class="form-group" ng-class="{'form-group' : true, 'has-error' : request_form.arrival.$dirty && request_form.arrival.$invalid}">
-              <label for="arrival">Data Entrega</label>
-              <p class="input-group">
-                    <input name="arrival" type="text" class="form-control" datepicker-popup="dd/MM/yyyy" ng-model="modal.item.arrival" is-open="modal.opened"
-                      min="modal.minDate" max="'2015-06-22'" show-weeks="false" show-button-bar="false" required/>
-                    <span class="input-group-btn">
-                      <button class="btn btn-default" ng-click="openCalendar($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-                    </span>
-                </p>
-              <span class="help-block" ng-show="request_form.arrival.$dirty && request_form.arrival.$invalid">Valor inválido para "Data Entrega"!</span>
-            </div>
-        <div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" ng-disabled="request_form.$invalid" ng-click="ok()">OK</button>
-            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-        </div>
-    </script>
+	<div class="row">
+		<div class="col-md-3">
+		  <label class="col-xs-3 radio-inline"><input type="radio" name="tipo" id="tipoBobina" ng-model="modal.item.cut" value="B" ng-change="changedCut()" />Bobina</label>
+		  <label class="radio-inline"><input type="radio" name="fina" id="finaQuente" ng-model="modal.item.material.lamination" value="FQ" />Fina Quente</label>
+		</div>
+		
+		<div class="col-md-3">
+		  <label class="col-xs-3 radio-inline"><input type="radio" name="tipo" id="tipoChapa" ng-model="modal.item.cut" value="C" ng-change="changedCut()" />Chapa</label>
+		  <label class="radio-inline"><input type="radio" name="fina" id="finaFrio" ng-model="modal.item.material.lamination" value="FF" />Fina Frio</label>
+		</div>
+		
+		<div class="col-md-3">
+		  <label for="treatment">Tratamento</label>
+		  <select id="treatment" class="form-control" ng-model="modal.item.material.treatment" ng-options="t.value as t.desc for t in modal.treatments"></select>
+		</div>
+		
+	</div>
+	<div class="row">
+	
+		<div ng-class="{'form-group' : true, 'has-error' : request_form.otherThicknesses.$dirty && request_form.otherThicknesses.$invalid}" class="col-md-3">
+		  <label for="thickness">Espessura (mm)</label>
+		  <select id="thickness" class="form-control" ng-model="modal.item.material.thickness" ng-options="t.value as t.desc for t in modal.thicknesses" ng-change="changedThickness()"></select>
+		  <p class="help-block" ng-show="modal.showOtherThickness">
+		    <input type="number" class="form-control" id="otherThicknesses" name="otherThicknesses" ng-model="modal.item.otherThickness" placeholder="Nova espessura..." min='0.10' max='9.99' required />
+		    <span class="help-block" ng-show="request_form.otherThicknesses.$dirty && request_form.otherThicknesses.$invalid">Valor inválido para "Espessura"!</span>
+		  <p>
+		</div>
+		
+		<div ng-class="{'form-group' : true, 'has-error' : request_form.otherWidth.$dirty && request_form.otherWidth.$invalid}" class="col-md-3">
+		  <label for="width">Largura (mm)</label>
+		  <select id="width" class="form-control" ng-model="modal.item.material.width" ng-options="w for w in modal.widths" ng-change="changedWidth()"></select>
+		  <p class="help-block" ng-show="modal.showOtherWidth">
+		    <input type="number" class="form-control" id="otherWidth" name="otherWidth" ng-model="modal.item.otherWidth" placeholder="Nova largura..." min='20' max='3000' required />
+		    <span class="help-block" ng-show="request_form.otherWidth.$dirty && request_form.otherWidth.$invalid">Valor inválido para "Largura"!</span>
+		  <p>
+		</div>
+		
+		<div ng-class="{'form-group' : true, 'has-error' : request_form.otherLength.$dirty && request_form.otherLength.$invalid}" class="col-md-3">
+		  <label for="length">Comprimento (mm)</label>
+		  <select id="length" class="form-control" ng-model="modal.item.material.length" ng-options="l for l in modal.lengths" ng-change="changedLength()" ng-disabled="modal.item.cut === 'B'"></select>
+		  <p class="help-block" ng-show="modal.showOtherLength">
+		    <input type="number" class="form-control" id="otherLength" name="otherLength" ng-model="modal.item.otherLength" placeholder="Novo comprimento..." min='0' max='3000' />
+		    <span class="help-block" ng-show="request_form.otherLength.$dirty && request_form.otherLength.$invalid">Valor inválido para "Comprimento"!</span>
+		  <p>
+		</div>
+		
+	</div>
+	<div class="row">
 
-    <script type="text/ng-template" id="confirmRemoveItemModal.html">
-      <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="cancel()">&times;</button>
-          <h4>{{title}}</h4>
-      </div>
-      <div class="modal-body">
-             <p>Deseja realmente remover o ítem?</p>                        
-      </div>
-      <div class="modal-footer">
-          <button class="btn btn-primary" ng-click="ok()">OK</button>
-          <button class="btn btn-warning" ng-click="cancel()">Cancelar</button>
-      </div>          
-    </script>
+		<div ng-class="{'form-group' : true, 'has-error' : request_form.weight.$dirty && request_form.weight.$invalid}" class="col-md-3">
+		  <label for="weight">Peso (Kg)</label>
+		  <input id="weight" name="weight" type="number" class="form-control" ng-model="modal.item.weight" placeholder="Peso" min='1' integer required />
+		  <span class="help-block" ng-show="request_form.weight.$dirty && request_form.weight.$invalid">Valor inválido para "Peso"!</span>
+		</div>
+		
+		<div class="form-group" ng-class="{'form-group' : true, 'has-error' : request_form.arrival.$dirty && request_form.arrival.$invalid}" class="col-md-3">
+		  <label for="arrival">Data Entrega</label>
+		  <p class="input-group">
+		    <input name="arrival" type="text" class="form-control" datepicker-popup="dd/MM/yyyy" ng-model="modal.item.arrival" is-open="modal.opened" min="modal.minDate" max="'2015-06-22'" show-weeks="false" show-button-bar="false" required />
+		    <span class="input-group-btn">
+		      <button class="btn btn-default" ng-click="openCalendar($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+		    </span>
+		  </p>
+		  <span class="help-block" ng-show="request_form.arrival.$dirty && request_form.arrival.$invalid">Valor inválido para "Data Entrega"!</span>
+		</div>
+		
+		<div class="modal-footer class="col-md-9"">
+		    <button class="btn btn-primary" ng-disabled="request_form.$invalid" ng-click="ok()">OK</button>
+		    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+		</div>
+		</div>
 
-    <script type="text/ng-template" id="confirmSendRequestModal.html">
-      <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="cancel()">&times;</button>
-          <h4>{{title}}</h4>
-      </div>
-      <div class="modal-body">
-             <p>Deseja realmente enviar a requisição?</p>                        
-      </div>
-      <div class="modal-footer">
-          <button class="btn btn-primary" ng-click="ok()">OK</button>
-          <button class="btn btn-warning" ng-click="cancel()">Cancelar</button>
-      </div>          
-    </script>
+	</div>
+	<div class="row">
 
-    <script type="text/ng-template" id="progressSendRequestModal.html">
-      <div class="modal-header">
-          <h4>Enviando requisição....</h4>
-      </div>
-      <div class="modal-body">
-        <div class="progress progress-striped active">
-          <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-            <span class="sr-only">100% Complete</span>
-          </div>
-        </div>
-      </div>          
-    </script>
+		<alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+		
+		<h4 ng-bind="subtitle + ' - Data Criação: ' + (request.created|date:'dd/MM/yyyy')"></h4>
+		<p>
+		  <button type="button" class="btn btn-primary" ng-click="editRequest()"><span class="glyphicon glyphicon-plus"></span> Incluir</button>
+		  <!--<button type="button" class="btn btn-primary" ng-click="sendRequest()" ng-disabled="request.items.length === 0"><span class="glyphicon glyphicon-ok"></span> Enviar Requisição</button>-->
+		  <h:commandButton id="submit_button" value="Enviar Requisição" ng-disabled="request.items.length === 0" 
+		      action="#{camunda.taskForm.completeProcessInstanceForm()}" styleClass="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Enviar Requisi��o</h:commandButton>
+		</p>
 
-    <div class="container">
-      <div class="bs-example">
-      <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
-      <h4 ng-bind="subtitle + ' - Data Criação: ' + (request.created|date:'dd/MM/yyyy')"></h4>
-      <p>
-        <button type="button" class="btn btn-primary" ng-click="editRequest()"><span class="glyphicon glyphicon-plus"></span> Incluir</button>
-        <!--<button type="button" class="btn btn-primary" ng-click="sendRequest()" ng-disabled="request.items.length === 0"><span class="glyphicon glyphicon-ok"></span> Enviar Requisição</button>-->
-        <h:commandButton id="submit_button" value="Enviar Requisição" ng-disabled="request.items.length === 0" 
-            action="#{camunda.taskForm.completeProcessInstanceForm()}" styleClass="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Enviar Requisição</h:commandButton>
-      </p>
+	</div>
+	<div class="row">
 
-      <table class="table table-condensed table-striped">
-        <thead>
-          <tr>
-            <th>Laminação</th>
-            <th>Tratamento</th>
-            <th>Espessura (mm)</th>
-            <th>Largura (mm)</th>
-            <th>Comprimento (mm)</th>
-            <th>Peso (kg)</th>
-            <th>Entrega</th>
-            <th width="6%">#</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="item in request.items">
-            <td>{{item.material.lamination|lamination}}</td>
-            <td>{{item.material.treatment|treatment}}</td>
-            <td>{{item.material.thickness|number:2}}</td>
-            <td>{{item.material.width}}</td>
-            <td>{{item.material.length}}</td>
-            <td>{{item.weight}}</td>
-            <td>{{item.arrival|date:'dd/MM/yyyy'}}</td>
-            <td style="align:center">
-              <a href="" ng-click="editRequest(item)"><button type="button" class="btn btn-primary btn-xs"><span tooltip="Editar" class="glyphicon glyphicon-pencil"></span></button></a>
-              <a href="" ng-click="removeRequest(item)"><button type="button" class="btn btn-danger btn-xs"><span tooltip="Remover" class="glyphicon glyphicon-remove"></span></button></a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  
-  </h:body>
-</html>
+		<table class="table table-condensed table-striped">
+		  <thead>
+		    <tr>
+		      <th>Laminação</th>
+		      <th>Tratamento</th>
+		      <th>Espessura (mm)</th>
+		      <th>Largura (mm)</th>
+		      <th>Comprimento (mm)</th>
+		      <th>Peso (kg)</th>
+		      <th>Entrega</th>
+		      <th width="6%">#</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+		    <tr ng-repeat="item in request.items">
+		      <td>{{item.material.lamination|lamination}}</td>
+		      <td>{{item.material.treatment|treatment}}</td>
+		      <td>{{item.material.thickness|number:2}}</td>
+		      <td>{{item.material.width}}</td>
+		      <td>{{item.material.length}}</td>
+		      <td>{{item.weight}}</td>
+		      <td>{{item.arrival|date:'dd/MM/yyyy'}}</td>
+		      <td style="align:center">
+		        <a href="" ng-click="editRequest(item)"><button type="button" class="btn btn-primary btn-xs"><span tooltip="Editar" class="glyphicon glyphicon-pencil"></span></button></a>
+		        <a href="" ng-click="removeRequest(item)"><button type="button" class="btn btn-danger btn-xs"><span tooltip="Remover" class="glyphicon glyphicon-remove"></span></button></a>
+		      </td>
+		    </tr>
+		  </tbody>
+		</table>
+	</div>
+      
+

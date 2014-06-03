@@ -8,7 +8,8 @@ import javax.ws.rs.Path;
 
 import org.camunda.bpm.engine.RuntimeService;
 
-@Path("/requests")
+import br.com.altamira.erp.entity.model.Request;
+
 public class RequestService {
 
 	@Inject
