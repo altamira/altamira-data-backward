@@ -22,7 +22,6 @@ import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.identity.User;
 import org.camunda.bpm.engine.impl.context.Context;
 
-import de.neuland.jade4j.Jade4J;
 import de.neuland.jade4j.JadeConfiguration;
 import de.neuland.jade4j.exceptions.JadeCompilerException;
 import de.neuland.jade4j.template.ClasspathTemplateLoader;
@@ -44,7 +43,7 @@ public class NotifyTaskAssignedListener implements TaskListener {
 	public void notify(DelegateTask delegateTask) {
 
 		String assignee = delegateTask.getAssignee();
-		String taskId = delegateTask.getId();
+		//String taskId = delegateTask.getId();
 
 		if (mailSession == null) {
 			LOGGER.warning("Resource injection fail '" + RESOURCE_NAME + "', do it manually by context.lookup.");

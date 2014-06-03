@@ -2,11 +2,8 @@ package br.com.altamira.bpm.purchase.request.steel;
 
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.mail.Session;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import javax.annotation.Resource;
@@ -18,14 +15,6 @@ public class NotifyOrderConfirmationPending implements JavaDelegate {
 	
 	@Resource(mappedName = RESOURCE_NAME)
 	private Session mailSession;
-	
-	private static final String FROM_USER = "admin@example.org";
-	
-	@Inject
-	private HistoryService historyService;
-	
-	@Inject
-	private RuntimeService runtimeService;
 	
 	private final static Logger LOGGER = Logger.getLogger(NotifyOrderConfirmationPending.class.getName());
 

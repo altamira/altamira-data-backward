@@ -10,7 +10,14 @@
     <bpmn2:messageFlow id="MessageFlow_6" name="" sourceRef="EndEvent_6" targetRef="IntermediateCatchEvent"/>
   </bpmn2:collaboration>
   <bpmn2:process id="br.com.altamira.bpm.purchase.request.steel" name="Requisição de Compra de Aço" isExecutable="true">
-    <bpmn2:startEvent id="RequestStartEvent" name="Requisição&#xD;&#xA;de Compra de Aço">
+    <bpmn2:laneSet id="LaneSet_2" name="Lane Set 2">
+      <bpmn2:lane id="PurchaseRequestLane" name="Requisição de Compra de Aço">
+        <bpmn2:flowNodeRef>RequestStartEvent</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>SendRequestIntermediateThrowEvent</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>RequestMessageEndEvent</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+    </bpmn2:laneSet>
+    <bpmn2:startEvent id="RequestStartEvent" camunda:formKey="embedded:app:forms/request.xhtml" name="Requisição&#xD;&#xA;de Compra de Aço">
       <bpmn2:extensionElements>
         <camunda:formData>
           <camunda:formField id="REQUEST_ID" label="Requisicao" type="string"/>
@@ -18,24 +25,24 @@
       </bpmn2:extensionElements>
       <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
     </bpmn2:startEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_1" name="" sourceRef="RequestStartEvent" targetRef="SendRequestIntermediateThrowEvent"/>
     <bpmn2:intermediateThrowEvent id="SendRequestIntermediateThrowEvent" name="Enviar&#xD;&#xA;Requisição">
       <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_16</bpmn2:outgoing>
       <bpmn2:messageEventDefinition id="_MessageEventDefinition_2" camunda:delegateExpression="#{SendRequest}"/>
     </bpmn2:intermediateThrowEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_16" name="" sourceRef="SendRequestIntermediateThrowEvent" targetRef="RequestMessageEndEvent"/>
     <bpmn2:endEvent id="RequestMessageEndEvent">
       <bpmn2:incoming>SequenceFlow_16</bpmn2:incoming>
     </bpmn2:endEvent>
-    <bpmn2:sequenceFlow id="SequenceFlow_16" name="" sourceRef="SendRequestIntermediateThrowEvent" targetRef="RequestMessageEndEvent"/>
-    <bpmn2:sequenceFlow id="SequenceFlow_1" name="" sourceRef="RequestStartEvent" targetRef="SendRequestIntermediateThrowEvent"/>
     <bpmn2:textAnnotation id="TextAnnotation_1">
       <bpmn2:text>Inicia um novo processo de compra, caso não haja nenhum processo de compra em andamento.</bpmn2:text>
     </bpmn2:textAnnotation>
     <bpmn2:association id="Association_7" sourceRef="TextAnnotation_1" targetRef="PurchaseStartEvent"/>
   </bpmn2:process>
-  <bpmn2:process id="br.com.altamira.bpm.purchasing.request.ProcessPurchaseRequest" name="Compra de Materia Prima - Aço" isExecutable="true">
+  <bpmn2:process id="br.com.altamira.bpm.purchasing.request.ProcessPurchaseRequest" name="Processar Requisições de Compra de Aço" isExecutable="true">
     <bpmn2:laneSet id="LaneSet_1" name="Lane Set 1">
-      <bpmn2:lane id="ProcessRequestLane" name="Processar Requisições">
+      <bpmn2:lane id="ProcessRequestLane" name="Processar Requisições de Compra de Aço">
         <bpmn2:flowNodeRef>PurchaseStartEvent</bpmn2:flowNodeRef>
         <bpmn2:flowNodeRef>IncludeRequestBoundaryEvent</bpmn2:flowNodeRef>
         <bpmn2:flowNodeRef>PurchasingPlanningSubProcess</bpmn2:flowNodeRef>
@@ -65,12 +72,12 @@
         <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
       </bpmn2:startEvent>
       <bpmn2:sequenceFlow id="SequenceFlow_3" name="" sourceRef="StartEvent_1" targetRef="QuotationUserTask"/>
-      <bpmn2:userTask id="QuotationUserTask" camunda:assignee="demo" name="Cotação">
+      <bpmn2:userTask id="QuotationUserTask" camunda:assignee="demo" camunda:formKey="embedded:app:forms/quotation.xhtml" name="Cotação">
         <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_11</bpmn2:outgoing>
       </bpmn2:userTask>
       <bpmn2:sequenceFlow id="SequenceFlow_11" name="" sourceRef="QuotationUserTask" targetRef="PurchasePlanningUserTask"/>
-      <bpmn2:userTask id="PurchasePlanningUserTask" camunda:assignee="demo" name="Planejamento&#xD;&#xA;Compra">
+      <bpmn2:userTask id="PurchasePlanningUserTask" camunda:assignee="demo" camunda:formKey="embedded:app:forms/planning.xhtml" name="Planejamento&#xD;&#xA;Compra">
         <bpmn2:incoming>SequenceFlow_11</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_4</bpmn2:outgoing>
       </bpmn2:userTask>
@@ -80,9 +87,10 @@
       </bpmn2:endEvent>
     </bpmn2:subProcess>
     <bpmn2:sequenceFlow id="SequenceFlow_9" name="" sourceRef="PurchasingPlanningSubProcess" targetRef="GeneratePurchaseOrdersServiceTask"/>
-    <bpmn2:serviceTask id="GeneratePurchaseOrdersServiceTask" camunda:delegateExpression="${Logger}" name="Gerar&#xD;&#xA;Pedidos de &#xD;&#xA;Compra">
+    <bpmn2:serviceTask id="GeneratePurchaseOrdersServiceTask" camunda:delegateExpression="${Logger}" camunda:async="true" name="Gerar&#xD;&#xA;Pedidos de &#xD;&#xA;Compra">
       <bpmn2:extensionElements>
         <camunda:executionListener delegateExpression="${GenerateOrders}" event="start"/>
+        <fox:failedJobRetryTimeCycle>R3/PT10M</fox:failedJobRetryTimeCycle>
       </bpmn2:extensionElements>
       <bpmn2:incoming>SequenceFlow_9</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_5</bpmn2:outgoing>
@@ -156,7 +164,7 @@
       <bpmn2:outgoing>SequenceFlow_14</bpmn2:outgoing>
     </bpmn2:startEvent>
     <bpmn2:sequenceFlow id="SequenceFlow_14" name="" sourceRef="StartEvent_3" targetRef="CheckOutPurchaseOrderUserTask"/>
-    <bpmn2:userTask id="CheckOutPurchaseOrderUserTask" camunda:assignee="demo" camunda:candidateGroups="Compras" name="Conferir &#xD;&#xA;Pedido de &#xD;&#xA;Compra ${loopCounter}/${orderId}">
+    <bpmn2:userTask id="CheckOutPurchaseOrderUserTask" camunda:assignee="demo" camunda:candidateGroups="Compras" camunda:formKey="embedded:app:forms/edit-order.xhtml" name="Conferir &#xD;&#xA;Pedido de &#xD;&#xA;Compra ${loopCounter}/${orderId}">
       <bpmn2:incoming>SequenceFlow_14</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_8</bpmn2:outgoing>
     </bpmn2:userTask>
@@ -172,7 +180,7 @@
       <bpmn2:linkEventDefinition id="ResendOrderLinkEventDefinitionCatch" name="Reenviar&#xD;&#xA;Pedido"/>
     </bpmn2:intermediateCatchEvent>
     <bpmn2:sequenceFlow id="SequenceFlow_44" name="" sourceRef="OrderResendIntermediateCatchEvent" targetRef="UpdateSupplierContactInfoUserTask"/>
-    <bpmn2:userTask id="UpdateSupplierContactInfoUserTask" camunda:assignee="demo" name="Atualizar Informações de Contato">
+    <bpmn2:userTask id="UpdateSupplierContactInfoUserTask" camunda:assignee="demo" camunda:formKey="embedded:app:forms/update-info.xhtml" name="Atualizar Informações de Contato">
       <bpmn2:incoming>SequenceFlow_44</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_45</bpmn2:outgoing>
     </bpmn2:userTask>
@@ -249,7 +257,7 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Collaboration Diagram">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration">
       <bpmndi:BPMNShape id="BPMNShape_1" bpmnElement="MRP" isHorizontal="true">
-        <dc:Bounds height="124.0" width="637.0" x="0.0" y="1.0"/>
+        <dc:Bounds height="136.0" width="637.0" x="0.0" y="1.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_StartEvent_1" bpmnElement="RequestStartEvent">
         <dc:Bounds height="36.0" width="36.0" x="108.0" y="41.0"/>
@@ -264,7 +272,7 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="_BPMNShape_Participant_2" bpmnElement="Purchasing" isHorizontal="true">
-        <dc:Bounds height="426.0" width="1033.0" x="0.0" y="176.0"/>
+        <dc:Bounds height="492.0" width="1033.0" x="0.0" y="176.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_3" bpmnElement="PurchaseStartEvent">
         <dc:Bounds height="36.0" width="36.0" x="91.0" y="270.0"/>
@@ -363,21 +371,21 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="BPMNEdge_MessageFlow_1" bpmnElement="MessageFlow_1" sourceElement="_BPMNShape_IntermediateThrowEvent_3" targetElement="_BPMNShape_StartEvent_3">
         <di:waypoint xsi:type="dc:Point" x="270.0" y="77.0"/>
-        <di:waypoint xsi:type="dc:Point" x="270.0" y="229.0"/>
-        <di:waypoint xsi:type="dc:Point" x="109.0" y="229.0"/>
+        <di:waypoint xsi:type="dc:Point" x="270.0" y="150.0"/>
+        <di:waypoint xsi:type="dc:Point" x="108.0" y="150.0"/>
         <di:waypoint xsi:type="dc:Point" x="109.0" y="270.0"/>
         <bpmndi:BPMNLabel>
-          <dc:Bounds height="6.0" width="6.0" x="177.0" y="229.0"/>
+          <dc:Bounds height="6.0" width="6.0" x="105.0" y="157.0"/>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_TextAnnotation_2" bpmnElement="TextAnnotation_1">
         <dc:Bounds height="50.0" width="313.0" x="216.0" y="188.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="_BPMNShape_TextAnnotation_3" bpmnElement="TextAnnotation_2">
-        <dc:Bounds height="50.0" width="361.0" x="60.0" y="524.0"/>
+        <dc:Bounds height="50.0" width="373.0" x="60.0" y="524.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="BPMNEdge_Association_6" bpmnElement="Association_6" sourceElement="_BPMNShape_TextAnnotation_3" targetElement="_BPMNShape_BoundaryEvent_11">
-        <di:waypoint xsi:type="dc:Point" x="198.0" y="524.0"/>
+        <di:waypoint xsi:type="dc:Point" x="202.0" y="524.0"/>
         <di:waypoint xsi:type="dc:Point" x="118.0" y="476.0"/>
         <di:waypoint xsi:type="dc:Point" x="192.0" y="424.0"/>
       </bpmndi:BPMNEdge>
@@ -645,7 +653,7 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_Lane_2" bpmnElement="ProcessRequestLane" isHorizontal="true">
-        <dc:Bounds height="426.0" width="1003.0" x="30.0" y="176.0"/>
+        <dc:Bounds height="492.0" width="1003.0" x="30.0" y="176.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="_BPMNShape_Lane_5" bpmnElement="ProcessPurchaseOrdersLane" isHorizontal="true">
         <dc:Bounds height="493.0" width="1002.0" x="1122.0" y="175.0"/>
@@ -665,6 +673,9 @@
         <di:waypoint xsi:type="dc:Point" x="1828.0" y="330.0"/>
         <di:waypoint xsi:type="dc:Point" x="1908.0" y="330.0"/>
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_Lane_6" bpmnElement="PurchaseRequestLane" isHorizontal="true">
+        <dc:Bounds height="136.0" width="607.0" x="30.0" y="1.0"/>
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn2:definitions>
