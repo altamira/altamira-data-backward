@@ -1,0 +1,61 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+	template="/WEB-INF/templates/template.xhtml">
+
+	<ui:define name="content">
+		<!-- <h:form>
+			<fieldset> -->
+				<legend>Requisição de Compra de Materia Prima - Aço</legend>
+				<p>
+					<label>Create Date</label>
+					<h:panelGroup layout="block">
+					
+					<div class="input-control text" data-role="datepicker" data-date="05/06/2014" data-other-days="1" >
+						<p:passThroughAttributes value="#{requestController.html5Attributes}" />
+					
+						<h:inputText value="#{requestController.request.createdDate}" converter="javax.faces.DateTime" required="true" >
+							<f:convertDateTime pattern="dd/MM/yyyy" />  
+						</h:inputText>
+						<button class="btn-date"></button>
+					</div>
+					</h:panelGroup>
+					
+					<label>Creator Name</label>
+					<h:inputText value="#{requestController.request.creatorName}" required="true" />
+				</p>
+				<h:commandButton action="#{requestController.Submit()}" value="Enviar Requisição" styleClass="btn btn-primary"/>
+			<!-- </fieldset>
+		</h:form> -->
+		
+		<h:form id="taskTableForm">
+			<h:dataTable value="#{requestController.all}" var="row"
+				styleClass="table" id="requestTable">
+				<h:column>
+					<f:facet name="header">Número</f:facet>
+					<h:panelGroup rendered="#{row.id!=null}">
+						<a href="">#{row.id}</a>
+					</h:panelGroup>
+				</h:column>
+				<h:column>
+					<f:facet name="header">Criado em</f:facet>
+					#{row.createdDate}
+				</h:column>
+				<h:column>
+					<f:facet name="header">Requerente</f:facet>
+					<h:panelGroup rendered="#{row.creatorName!=null}">		
+							#{row.creatorName}
+						</h:panelGroup>
+				</h:column>
+				<h:column>
+					<f:facet name="header">Enviado em</f:facet>
+					<h:panelGroup rendered="#{row.sendDate!=null}">		
+							#{row.sendDate}
+						</h:panelGroup>
+				</h:column>
+			</h:dataTable>
+		</h:form>
+	</ui:define>
+</ui:composition>

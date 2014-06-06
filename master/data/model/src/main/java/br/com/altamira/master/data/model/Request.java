@@ -25,6 +25,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -45,25 +47,31 @@ import javax.xml.bind.annotation.XmlTransient;
 public class Request implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    // @Max(value=?) @Min(value=?)//if you know range of your decimal fields
-    // consider using these annotations to enforce field validation
+
     @Id
     @SequenceGenerator(name = "RequestSequence", sequenceName = "REQUEST_SEQUENCE", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "RequestSequence")
     @Column(name = "ID")
     private Long id;
+    
     @Basic(optional = false)
     @Column(name = "CREATED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
+
+    @Max(50)
+    @Min(3)
     @Basic(optional = false)
     @Column(name = "CREATOR_NAME", columnDefinition = "nvarchar2(255)")
     private String creatorName;
+    
     @Column(name = "SEND_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date sendDate;
+    
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "request", fetch = FetchType.LAZY)
     private Set<RequestItem> items;
+    
     @OneToOne(optional = false, mappedBy = "request", fetch = FetchType.LAZY)
     private QuotationRequest quotationRequest;
 

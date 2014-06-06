@@ -1,31 +1,51 @@
-<!DOCTYPE HTML>
+
+<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core">
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
 
-  <h:head>
-	  <title>JSF Page</title>
-    <h:outputStylesheet library="webjars/bootstrap/2.3.2/css" name="bootstrap.css"/>
-    <!-- if you need it - it is right there: 
-    <h:outputScript type="text/javascript" library="webjars/bootstrap/2.3.2/js" name="bootstrap.js" />    
-    -->
-  </h:head>
-  <h:body>
-	  <div class="container">
-	  	<h:form>          
-	  		<fieldset>
-	  			<legend>Requisição de Compra de Material Prima - Aço</legend>
-	  			<p>
-	  			  This is a sample for a simple JSF page which can be used e.g. to trigger some
-	  			  method on a service or bean.
-	  			</p>
-	  			<p>
-	  				<label>Field1</label>
-	  				<h:inputText value="#binding1" />
-	  			</p>
-	  			<h:commandButton action="#submit" value="Submit" styleClass="btn btn-primary"/>
-	  		</fieldset>
-	  	</h:form>
-	  </div>
-  </h:body>
+<h:head>
+
+	<title>Altamira Industria Metalurgica Ltda</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="shortcut icon" type="image/x-icon"
+		href="resources/favicon.ico" />
+
+	<link rel="stylesheet" href="css/metro-bootstrap.css" />
+	<script src="js/jquery/jquery.min.js" />
+	<script src="js/jquery/jquery.widget.min.js" />
+	<script src="js/metro.min.js" />
+
+</h:head>
+
+<h:body class="metro">
+	<div class="container">
+		<div class="grid">
+			<div class="row">
+				<h:form class="span4 offset4" id="someForm" role="form">
+					<fieldset>
+						<legend>Controle de Acesso</legend>
+						<label>Usuário</label>
+						<div class="input-control text" data-role="input-control">
+							<h:inputText p:placeholder="Usuario"
+								value="#{userController.userId}" />
+							<button class="btn-clear" tabindex="-1"></button>
+						</div>
+						<label>Senha</label>
+						<div class="input-control password" data-role="input-control">
+							<h:inputSecret p:placeholder="Senha"
+								value="#{userController.password}" />
+							<button class="btn-reveal" tabindex="-1"></button>
+						</div>
+						<h:commandButton value="Login" class="btn btn-primary"
+							action="#{userController.login}" />
+					</fieldset>
+				</h:form>
+			</div>
+		</div>
+	</div>
+</h:body>
 </html>

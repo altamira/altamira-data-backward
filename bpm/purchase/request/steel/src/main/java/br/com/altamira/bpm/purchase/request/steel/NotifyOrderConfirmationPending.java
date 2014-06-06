@@ -2,10 +2,8 @@ package br.com.altamira.bpm.purchase.request.steel;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.mail.Address;
 import javax.mail.Message;
@@ -16,9 +14,7 @@ import javax.mail.internet.MimeMessage;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.IdentityService;
-import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.identity.User;
@@ -41,12 +37,6 @@ public class NotifyOrderConfirmationPending implements JavaDelegate {
 	private Session mailSession;
 	
 	private static final String FROM_USER = "admin@example.org";
-	
-	@Inject
-	private HistoryService historyService;
-	
-	@Inject
-	private RuntimeService runtimeService;
 	
 	private final static Logger LOGGER = Logger.getLogger(NotifyOrderConfirmationPending.class.getName());
 

@@ -17,7 +17,7 @@
         <bpmn2:flowNodeRef>RequestMessageEndEvent</bpmn2:flowNodeRef>
       </bpmn2:lane>
     </bpmn2:laneSet>
-    <bpmn2:startEvent id="RequestStartEvent" camunda:formKey="embedded:app:forms/request.xhtml" name="Requisição&#xD;&#xA;de Compra de Aço">
+    <bpmn2:startEvent id="RequestStartEvent" camunda:formKey="app:start-request.jsf" name="Requisição&#xD;&#xA;de Compra de Aço">
       <bpmn2:extensionElements>
         <camunda:formData>
           <camunda:formField id="REQUEST_ID" label="Requisicao" type="string"/>
@@ -72,12 +72,12 @@
         <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
       </bpmn2:startEvent>
       <bpmn2:sequenceFlow id="SequenceFlow_3" name="" sourceRef="StartEvent_1" targetRef="QuotationUserTask"/>
-      <bpmn2:userTask id="QuotationUserTask" camunda:assignee="demo" camunda:formKey="embedded:app:forms/quotation.xhtml" name="Cotação">
+      <bpmn2:userTask id="QuotationUserTask" camunda:assignee="demo" camunda:formKey="app:quotation.xhtml" name="Cotação">
         <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_11</bpmn2:outgoing>
       </bpmn2:userTask>
       <bpmn2:sequenceFlow id="SequenceFlow_11" name="" sourceRef="QuotationUserTask" targetRef="PurchasePlanningUserTask"/>
-      <bpmn2:userTask id="PurchasePlanningUserTask" camunda:assignee="demo" camunda:formKey="embedded:app:forms/planning.xhtml" name="Planejamento&#xD;&#xA;Compra">
+      <bpmn2:userTask id="PurchasePlanningUserTask" camunda:assignee="demo" camunda:formKey="app:planning.xhtml" name="Planejamento&#xD;&#xA;Compra">
         <bpmn2:incoming>SequenceFlow_11</bpmn2:incoming>
         <bpmn2:outgoing>SequenceFlow_4</bpmn2:outgoing>
       </bpmn2:userTask>
@@ -164,7 +164,7 @@
       <bpmn2:outgoing>SequenceFlow_14</bpmn2:outgoing>
     </bpmn2:startEvent>
     <bpmn2:sequenceFlow id="SequenceFlow_14" name="" sourceRef="StartEvent_3" targetRef="CheckOutPurchaseOrderUserTask"/>
-    <bpmn2:userTask id="CheckOutPurchaseOrderUserTask" camunda:assignee="demo" camunda:candidateGroups="Compras" camunda:formKey="embedded:app:forms/edit-order.xhtml" name="Conferir &#xD;&#xA;Pedido de &#xD;&#xA;Compra ${loopCounter}/${orderId}">
+    <bpmn2:userTask id="CheckOutPurchaseOrderUserTask" camunda:assignee="demo" camunda:candidateGroups="Compras" camunda:formKey="app:edit-order.xhtml" name="Conferir &#xD;&#xA;Pedido de &#xD;&#xA;Compra ${loopCounter}/${orderId}">
       <bpmn2:incoming>SequenceFlow_14</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_8</bpmn2:outgoing>
     </bpmn2:userTask>
@@ -180,7 +180,7 @@
       <bpmn2:linkEventDefinition id="ResendOrderLinkEventDefinitionCatch" name="Reenviar&#xD;&#xA;Pedido"/>
     </bpmn2:intermediateCatchEvent>
     <bpmn2:sequenceFlow id="SequenceFlow_44" name="" sourceRef="OrderResendIntermediateCatchEvent" targetRef="UpdateSupplierContactInfoUserTask"/>
-    <bpmn2:userTask id="UpdateSupplierContactInfoUserTask" camunda:assignee="demo" camunda:formKey="embedded:app:forms/update-info.xhtml" name="Atualizar Informações de Contato">
+    <bpmn2:userTask id="UpdateSupplierContactInfoUserTask" camunda:assignee="demo" camunda:formKey="app:update-info.xhtml" name="Atualizar Informações de Contato">
       <bpmn2:incoming>SequenceFlow_44</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_45</bpmn2:outgoing>
     </bpmn2:userTask>

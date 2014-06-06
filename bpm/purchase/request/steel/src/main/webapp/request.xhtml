@@ -1,5 +1,13 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	template="/WEB-INF/templates/template.xhtml">
 
-	<div class="row">
+	<ui:define name="content">
+
+	<div class="container-fluid">
 		<div class="col-md-3">
 		  <label class="col-xs-3 radio-inline"><input type="radio" name="tipo" id="tipoBobina" ng-model="modal.item.cut" value="B" ng-change="changedCut()" />Bobina</label>
 		  <label class="radio-inline"><input type="radio" name="fina" id="finaQuente" ng-model="modal.item.material.lamination" value="FQ" />Fina Quente</label>
@@ -15,15 +23,12 @@
 		  <select id="treatment" class="form-control" ng-model="modal.item.material.treatment" ng-options="t.value as t.desc for t in modal.treatments"></select>
 		</div>
 		
-	</div>
-	<div class="row">
-	
 		<div ng-class="{'form-group' : true, 'has-error' : request_form.otherThicknesses.$dirty && request_form.otherThicknesses.$invalid}" class="col-md-3">
 		  <label for="thickness">Espessura (mm)</label>
 		  <select id="thickness" class="form-control" ng-model="modal.item.material.thickness" ng-options="t.value as t.desc for t in modal.thicknesses" ng-change="changedThickness()"></select>
 		  <p class="help-block" ng-show="modal.showOtherThickness">
 		    <input type="number" class="form-control" id="otherThicknesses" name="otherThicknesses" ng-model="modal.item.otherThickness" placeholder="Nova espessura..." min='0.10' max='9.99' required />
-		    <span class="help-block" ng-show="request_form.otherThicknesses.$dirty && request_form.otherThicknesses.$invalid">Valor inválido para "Espessura"!</span>
+		    <span class="help-block" ng-show="request_form.otherThicknesses.$dirty && request_form.otherThicknesses.$invalid">Valor invÃ¡lido para "Espessura"!</span>
 		  <p>
 		</div>
 		
@@ -32,7 +37,7 @@
 		  <select id="width" class="form-control" ng-model="modal.item.material.width" ng-options="w for w in modal.widths" ng-change="changedWidth()"></select>
 		  <p class="help-block" ng-show="modal.showOtherWidth">
 		    <input type="number" class="form-control" id="otherWidth" name="otherWidth" ng-model="modal.item.otherWidth" placeholder="Nova largura..." min='20' max='3000' required />
-		    <span class="help-block" ng-show="request_form.otherWidth.$dirty && request_form.otherWidth.$invalid">Valor inválido para "Largura"!</span>
+		    <span class="help-block" ng-show="request_form.otherWidth.$dirty && request_form.otherWidth.$invalid">Valor invÃ¡lido para "Largura"!</span>
 		  <p>
 		</div>
 		
@@ -41,17 +46,14 @@
 		  <select id="length" class="form-control" ng-model="modal.item.material.length" ng-options="l for l in modal.lengths" ng-change="changedLength()" ng-disabled="modal.item.cut === 'B'"></select>
 		  <p class="help-block" ng-show="modal.showOtherLength">
 		    <input type="number" class="form-control" id="otherLength" name="otherLength" ng-model="modal.item.otherLength" placeholder="Novo comprimento..." min='0' max='3000' />
-		    <span class="help-block" ng-show="request_form.otherLength.$dirty && request_form.otherLength.$invalid">Valor inválido para "Comprimento"!</span>
+		    <span class="help-block" ng-show="request_form.otherLength.$dirty && request_form.otherLength.$invalid">Valor invÃ¡lido para "Comprimento"!</span>
 		  <p>
 		</div>
 		
-	</div>
-	<div class="row">
-
 		<div ng-class="{'form-group' : true, 'has-error' : request_form.weight.$dirty && request_form.weight.$invalid}" class="col-md-3">
 		  <label for="weight">Peso (Kg)</label>
 		  <input id="weight" name="weight" type="number" class="form-control" ng-model="modal.item.weight" placeholder="Peso" min='1' integer required />
-		  <span class="help-block" ng-show="request_form.weight.$dirty && request_form.weight.$invalid">Valor inválido para "Peso"!</span>
+		  <span class="help-block" ng-show="request_form.weight.$dirty && request_form.weight.$invalid">Valor invÃ¡lido para "Peso"!</span>
 		</div>
 		
 		<div class="form-group" ng-class="{'form-group' : true, 'has-error' : request_form.arrival.$dirty && request_form.arrival.$invalid}" class="col-md-3">
@@ -62,29 +64,27 @@
 		      <button class="btn btn-default" ng-click="openCalendar($event)"><i class="glyphicon glyphicon-calendar"></i></button>
 		    </span>
 		  </p>
-		  <span class="help-block" ng-show="request_form.arrival.$dirty && request_form.arrival.$invalid">Valor inválido para "Data Entrega"!</span>
+		  <span class="help-block" ng-show="request_form.arrival.$dirty && request_form.arrival.$invalid">Valor invÃ¡lido para "Data Entrega"!</span>
 		</div>
 		
 		<div class="modal-footer class="col-md-9"">
 		    <button class="btn btn-primary" ng-disabled="request_form.$invalid" ng-click="ok()">OK</button>
 		    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 		</div>
-		</div>
-
 	</div>
+	
 	<div class="row">
-
 		<alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
 		
-		<h4 ng-bind="subtitle + ' - Data Criação: ' + (request.created|date:'dd/MM/yyyy')"></h4>
+		<h4 ng-bind="subtitle + ' - Data CriaÃ§Ã£o: ' + (request.created|date:'dd/MM/yyyy')"></h4>
 		<p>
 		  <button type="button" class="btn btn-primary" ng-click="editRequest()"><span class="glyphicon glyphicon-plus"></span> Incluir</button>
-		  <!--<button type="button" class="btn btn-primary" ng-click="sendRequest()" ng-disabled="request.items.length === 0"><span class="glyphicon glyphicon-ok"></span> Enviar Requisição</button>-->
-		  <h:commandButton id="submit_button" value="Enviar Requisição" ng-disabled="request.items.length === 0" 
-		      action="#{camunda.taskForm.completeProcessInstanceForm()}" styleClass="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Enviar Requisi��o</h:commandButton>
+		  <!--<button type="button" class="btn btn-primary" ng-click="sendRequest()" ng-disabled="request.items.length === 0"><span class="glyphicon glyphicon-ok"></span> Enviar RequisiÃ§Ã£o</button>-->
+		  <h:commandButton id="submit_button" value="Enviar RequisiÃ§Ã£o" ng-disabled="request.items.length === 0" 
+		      action="#{camunda.taskForm.completeProcessInstanceForm()}" styleClass="btn btn-primary"><span class="glyphicon glyphicon-ok"></span> Enviar Requisição</h:commandButton>
 		</p>
-
 	</div>
+	
 	<div class="row">
 
 		<table class="table table-condensed table-striped">
@@ -117,5 +117,6 @@
 		  </tbody>
 		</table>
 	</div>
-      
+	</ui:define>
+</ui:composition>
 
