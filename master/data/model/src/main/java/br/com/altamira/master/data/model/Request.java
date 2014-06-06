@@ -62,9 +62,9 @@ public class Request implements Serializable {
     @Column(name = "SEND_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date sendDate;
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = "request", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "request", fetch = FetchType.LAZY)
     private Set<RequestItem> items;
-    @OneToOne(optional = true, /*cascade = CascadeType.ALL,*/mappedBy = "request", fetch = FetchType.LAZY)
+    @OneToOne(optional = false, mappedBy = "request", fetch = FetchType.LAZY)
     private QuotationRequest quotationRequest;
 
     public Request() {

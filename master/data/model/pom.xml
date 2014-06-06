@@ -4,6 +4,7 @@
   <artifactId>master.data.model</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <dependencies>
+  
   	<dependency>
   		<groupId>org.hibernate.javax.persistence</groupId>
   		<artifactId>hibernate-jpa-2.1-api</artifactId>

@@ -1,13 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-  <!-- TODO: check if you really want to use the process engine datasource. Note that the following is written for JBoss AS 7 -->
-  <persistence-unit name="Master-Data-PU" transaction-type="JTA">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.1" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="altamira-PU" transaction-type="JTA">
+    <description>Altamira Persistence Unit</description>
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <jta-data-source>java:jboss/datasources/ProcessEngine</jta-data-source>
-    <exclude-unlisted-classes>false</exclude-unlisted-classes>
+    <!-- <jar-file>lib/master.data.dao-0.0.1-SNAPSHOT.jar</jar-file> -->
+    <!-- <jar-file>lib/master.data.model-0.0.1-SNAPSHOT.jar</jar-file> -->
     <properties>
-      <property name="hibernate.hbm2ddl.auto" value="update" />
-      <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+      <property name="hibernate.hbm2ddl.auto" value="update"/>
+      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.format_sql" value="true"/>
+      <!-- <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/> -->
+      <!--       <property name="hibernate.transaction.flush_before_completion" value="true"/> -->
+      <!--<property name="hibernate.dialect" value="br.com.altamira.bpm.AltamiraCustomDialect"/> --> 
     </properties>
   </persistence-unit>
-
 </persistence>
