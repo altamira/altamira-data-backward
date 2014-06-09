@@ -1,69 +1,309 @@
 package br.com.altamira.master.data.service;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.Response.Status;
 
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+
+
+//import org.camunda.bpm.engine.runtime.ProcessInstance;
+//import org.camunda.bpm.engine.task.Task;
 import org.joda.time.DateTime;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 
+
+//import br.com.altamira.erp.entity.model.PurchasePlanning;
+//import br.com.altamira.erp.entity.model.Quotation;
+//import br.com.altamira.erp.entity.model.RequestReportData;
+//import br.com.altamira.erp.entity.services.RequestEndpoint;
 import br.com.altamira.master.data.dao.RequestDao;
 import br.com.altamira.master.data.model.Request;
+import br.com.altamira.master.data.model.RequestItem;
 
 @Path("request")
 public class RequestEndpoint {
 
 	@Inject
 	private RequestDao requestDao;
-	
-	@GET
-	@Produces("application/json")
-	public Response getAll() throws JsonProcessingException {
-		
+
+    @GET
+    @Produces("application/json")
+    public Response listAll(
+    		@DefaultValue("1") @QueryParam("start") Integer startPosition,
+    		@DefaultValue("10") @QueryParam("max") Integer maxResult) throws JsonProcessingException {
+
 		ObjectMapper objectMapper = new ObjectMapper();
 		
 		Version version = new Version(1, 0, 0, "SNAPSHOT", "br.com.altamira", "master.data.service.serializer"); // maven/OSGi style version
 		SimpleModule module = new SimpleModule("RequestSerializer", version);
-		module = module.addSerializer(new RequestSerializer());
-		//objectMapper.registerModule(module);
+		
+		objectMapper.registerModule(module.addSerializer(Request.class, new RequestSerializer()));
+		objectMapper.registerModule(module.addSerializer(RequestItem.class, new RequestItemSerializer()));
 		objectMapper.registerModule(new JodaModule());
-		objectMapper.registerModule(new Hibernate4Module());
+		
 		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-		objectMapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer());
-		   
-		List<Request> list = requestDao.getAll();
+		objectMapper.setDateFormat(DateFormat.getDateInstance(DateFormat.SHORT/*, new Locale("PT-BR")*/));
+		objectMapper.getSerializerProvider().setNullValueSerializer(new NullValueSerializer());
+        
+		return Response.ok(objectMapper.writeValueAsString(requestDao.getAll(startPosition, maxResult))).build();
+    }
+	
+    @GET
+    @Path("/{id:[0-9][0-9]*}")
+    @Produces("application/json")
+    public Response findById(@PathParam("id") long id) throws JsonProcessingException {
+    	Request entity = requestDao.find(id);
+    	if (entity == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+
+		ObjectMapper objectMapper = new ObjectMapper();
 		
-		list.add(new Request(1l, DateTime.now().toDate(), "my1"));
-		list.add(new Request(2l, DateTime.now().toDate(), "my2"));
-		String serialized = objectMapper.writeValueAsString(list);
+		Version version = new Version(1, 0, 0, "SNAPSHOT", "br.com.altamira", "master.data.service.serializer"); // maven/OSGi style version
+		SimpleModule module = new SimpleModule("RequestSerializer", version);
 		
-		return Response.ok(serialized).build();
+		objectMapper.registerModule(module.addSerializer(Request.class, new RequestSerializer()));
+		objectMapper.registerModule(module.addSerializer(RequestItem.class, new RequestItemSerializer()));
+		objectMapper.registerModule(new JodaModule());
 		
-		/*Hibernate4Module hm = new Hibernate4Module();
-    	objectMapper.registerModule(hm);
-    	List<Request> list = requestDao.getAll();
-    	String r = objectMapper.writeValueAsString(list);
-    	return Response.ok(r).build();*/
+		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+		objectMapper.setDateFormat(DateFormat.getDateInstance(DateFormat.SHORT/*, new Locale("PT-BR")*/));
+		objectMapper.getSerializerProvider().setNullValueSerializer(new NullValueSerializer());
     	
-		/*List<Request> list = requestDao.getAll();
-    	ObjectMapper mapper = new ObjectMapper();
-    	 
-    	SimpleModule module = new SimpleModule();
-    	module.addSerializer(Request.class, new RequestSerializer());
-    	mapper.registerModule(module);
-    	 
-    	String serialized = mapper.writeValueAsString(list);*/
-	}
+    	return Response.ok(objectMapper.writeValueAsString(entity)).build();
+    }
+
+    @POST
+    @Produces("application/json")
+    @Consumes("application/json")
+    public Response create(Request entity) {
+    	requestDao.create(entity);
+        return Response.created(
+                UriBuilder.fromResource(Request.class)
+                .path(String.valueOf(entity.getId())).build())
+                .entity(entity)
+                .build();
+    }
+
+    @PUT
+    @Path("/{id:[0-9][0-9]*}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response update(@PathParam("id") long id, Request entity) {
+    	
+    	entity.setId(id);
+    	requestDao.update(entity);
+
+        return Response.ok(UriBuilder.fromResource(Request.class)
+                .path(String.valueOf(entity.getId())).build())
+                .entity(entity)
+                .build();
+    }
+
+    @DELETE
+    @Path("/{id:[0-9][0-9]*}")
+    public Response deleteById(@PathParam("id") long id) {
+        Request entity = requestDao.remove(id);
+        if (entity == null) {
+            return Response.status(Status.NOT_FOUND).build();
+        }
+        return Response.noContent().build();
+    }
+
+    /*@GET
+    @Path("/current")
+    @Produces("application/json")
+    public Response getCurrent() {
+    	Request entity = requestDao.getCurrent();
+    	return Response.ok(UriBuilder.fromResource(RequestEndpoint.class)
+                .path(String.valueOf(entity.getId())).build())
+                .entity(entity)
+                .build();
+    }*/
+    
+    /*@GET
+    @Path("/{id:[0-9][0-9]*}/report")
+    @Produces("application/pdf")
+    public Response getRequestReportInPdf(@PathParam("id") long requestId) {
+
+        // generate report
+        JasperPrint jasperPrint = null;
+
+        try {
+            byte[] requestReportJasper = requestDao.getRequestReportJasperFile();
+            byte[] requestReportAltamiraimage = requestDao.getRequestReportAltamiraImage();
+            byte[] pdf = null;
+
+            ByteArrayInputStream reportStream = new ByteArrayInputStream(requestReportJasper);
+            Map<String, Object> parameters = new HashMap<String, Object>();
+
+            List<Object[]> list = requestDao.selectRequestReportDataById(requestId);
+
+            //Vector requestReportList = new Vector();
+            ArrayList requestReportList = new ArrayList();
+            List<Date> dateList = new ArrayList<Date>();
+
+            BigDecimal lastMaterialId = new BigDecimal(0);
+            int count = 0;
+            BigDecimal sumRequestWeight = new BigDecimal(0);
+            BigDecimal totalWeight = new BigDecimal(0);
+
+            RequestReportData r = new RequestReportData();
+            r.setId(null);
+            r.setLamination(null);
+            r.setLength(null);
+            r.setThickness(null);
+            r.setTreatment(null);
+            r.setWidth(null);
+            r.setArrivalDate(null);
+            r.setWeight(null);
+
+            requestReportList.add(r);
+
+            for (Object[] rs : list) {
+                RequestReportData rr = new RequestReportData();
+
+                BigDecimal currentMaterialId = new BigDecimal(rs[0].toString());
+
+                if (lastMaterialId.compareTo(currentMaterialId) == 0) {
+                    rr.setWeight(new BigDecimal(rs[6].toString()));
+                    rr.setArrivalDate((Date) rs[7]);
+
+                    // copy REQUEST_DATE into dateList
+                    dateList.add((Date) rs[7]);
+
+                    System.out.println(new BigDecimal(rs[6].toString()));
+                    totalWeight = totalWeight.add(new BigDecimal(rs[6].toString()));
+                    sumRequestWeight = sumRequestWeight.add(new BigDecimal(rs[6].toString()));
+                    count++;
+                } else {
+                    rr.setId(new BigDecimal(rs[0].toString()));
+                    rr.setLamination((String) rs[1]);
+                    rr.setTreatment((String) rs[2]);
+                    rr.setThickness(new BigDecimal(rs[3].toString()));
+                    rr.setWidth(new BigDecimal(rs[4].toString()));
+
+                    if (rs[5] != null) {
+                        rr.setLength(new BigDecimal(rs[5].toString()));
+                    }
+
+                    rr.setWeight(new BigDecimal(rs[6].toString()));
+                    rr.setArrivalDate((Date) rs[7]);
+
+                    // copy ARRIVAL_DATE into dateList
+                    dateList.add((Date) rs[7]);
+
+                    totalWeight = totalWeight.add(new BigDecimal(rs[6].toString()));
+                    lastMaterialId = currentMaterialId;
+
+                    if (count != 0) {
+                        RequestReportData addition = new RequestReportData();
+                        addition.setWeight(sumRequestWeight);
+
+                        requestReportList.add(addition);
+                    }
+
+                    sumRequestWeight = new BigDecimal(rs[6].toString());
+                    count = 0;
+                }
+
+                requestReportList.add(rr);
+            }
+
+            if (count > 0) {
+                RequestReportData addition = new RequestReportData();
+                addition.setWeight(sumRequestWeight);
+
+                requestReportList.add(addition);
+            }
+
+            BufferedImage imfg = null;
+            try {
+                InputStream in = new ByteArrayInputStream(requestReportAltamiraimage);
+                imfg = ImageIO.read(in);
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+
+            Collections.sort(dateList);
+
+            parameters.put("REQUEST_START_DATE", dateList.get(0));
+            parameters.put("REQUEST_END_DATE", dateList.get(dateList.size() - 1));
+            parameters.put("REQUEST_ID", requestId);
+            parameters.put("TOTAL_WEIGHT", totalWeight);
+            parameters.put("altamira_logo", imfg);
+            //parameters.put("USERNAME", httpRequest.getUserPrincipal() == null ? "" : httpRequest.getUserPrincipal().getName());
+
+            Locale locale = new Locale.Builder().setLanguage("pt").setRegion("BR").build();
+            parameters.put("REPORT_LOCALE", locale);
+
+            JRDataSource dataSource = new JRBeanCollectionDataSource(requestReportList, false);
+
+            jasperPrint = JasperFillManager.fillReport(reportStream, parameters, dataSource);
+
+            pdf = JasperExportManager.exportReportToPdf(jasperPrint);
+
+            ByteArrayInputStream pdfStream = new ByteArrayInputStream(pdf);
+
+            Response.ResponseBuilder response = Response.ok(pdfStream);
+            response.header("Content-Disposition", "inline; filename=Request Report.pdf");
+
+            return response.build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (jasperPrint != null) {
+                    // store generated report in database
+                    requestDao.insertGeneratedRequestReport(jasperPrint);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Could not insert generated report in database.");
+            }
+        }
+    }*/
+	
 }

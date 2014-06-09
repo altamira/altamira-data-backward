@@ -30,6 +30,8 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  *
  * @author Alessandro
@@ -61,6 +63,7 @@ public class RequestItem implements Serializable {
     private BigDecimal weight;
     @JoinColumn(name = "REQUEST", referencedColumnName = "ID")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Request request;
     @JoinColumn(name = "MATERIAL", referencedColumnName = "ID")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -105,14 +108,14 @@ public class RequestItem implements Serializable {
         this.weight = weight;
     }
 
-    @XmlTransient
+    /*@XmlTransient
     public Request getRequest() {
         return request;
     }
 
     public void setRequest(Request request) {
         this.request = request;
-    }
+    }*/
 
     @XmlTransient
     public Material getMaterial() {

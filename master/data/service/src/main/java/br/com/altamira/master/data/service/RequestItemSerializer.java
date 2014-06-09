@@ -7,19 +7,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-import br.com.altamira.master.data.model.Request;
+import br.com.altamira.master.data.model.RequestItem;
 
-public class RequestSerializer extends JsonSerializer<Request> {
+public class RequestItemSerializer extends JsonSerializer<RequestItem> {
 
 	@Override
-	public void serialize(Request value, JsonGenerator jgen,
+	public void serialize(RequestItem value, JsonGenerator jgen,
 			SerializerProvider provider) throws IOException,
 			JsonProcessingException {
 		jgen.writeStartObject();
 		jgen.writeNumberField("id", value.getId());
-		jgen.writeObjectField("created", value.getCreated());
-		jgen.writeStringField("creator", value.getCreator());
-		jgen.writeObjectField("sent", value.getSent() != null ? value.getSent() : "");
+		// jgen.writeObjectField("createdDate", value.getCreatedDate());
+		// jgen.writeStringField("createName", value.getCreatorName());
 		jgen.writeEndObject();
 	}
 

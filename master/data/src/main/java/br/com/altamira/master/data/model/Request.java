@@ -30,6 +30,9 @@ import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
+
 /**
  *
  * @author Alessandro
@@ -39,11 +42,11 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Request.findAll", query = "SELECT r FROM Request r"),
-    @NamedQuery(name = "Request.findById", query = "SELECT r FROM Request r WHERE r.id = :id"),
-    @NamedQuery(name = "Request.findByCreatedDate", query = "SELECT r FROM Request r WHERE r.createdDate = :createdDate"),
-    @NamedQuery(name = "Request.findByCreatorName", query = "SELECT r FROM Request r WHERE r.creatorName = :creatorName"),
-    @NamedQuery(name = "Request.findBySendDate", query = "SELECT r FROM Request r WHERE r.sendDate = :sendDate"),
-	@NamedQuery(name = "Request.getCurrent", query = "SELECT r FROM Request r WHERE r.id = (SELECT MAX(rr.id) FROM Request rr WHERE rr.sendDate IS NULL)")})
+    @NamedQuery(name = "Request.findById", query = "SELECT r FROM Request r JOIN FETCH r.items WHERE r.id = :id"),
+    @NamedQuery(name = "Request.findByCreated", query = "SELECT r FROM Request r WHERE r.created = :created"),
+    @NamedQuery(name = "Request.findByCreator", query = "SELECT r FROM Request r WHERE r.creator = :creator"),
+    @NamedQuery(name = "Request.findBySent", query = "SELECT r FROM Request r WHERE r.sent = :sent"),
+	@NamedQuery(name = "Request.getCurrent", query = "SELECT r FROM Request r WHERE r.id = (SELECT MAX(rr.id) FROM Request rr WHERE rr.sent IS NULL)")})
 public class Request implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -57,22 +60,23 @@ public class Request implements Serializable {
     @Basic(optional = false)
     @Column(name = "CREATED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
+    private Date created;
 
     @Max(50)
     @Min(3)
     @Basic(optional = false)
     @Column(name = "CREATOR_NAME", columnDefinition = "nvarchar2(255)")
-    private String creatorName;
+    private String creator;
     
     @Column(name = "SEND_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date sendDate;
+    private Date sent;
     
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "request", fetch = FetchType.LAZY)
     private Set<RequestItem> items;
     
-    @OneToOne(optional = false, mappedBy = "request", fetch = FetchType.LAZY)
+    @XmlTransient
+    @OneToOne(optional = true, mappedBy = "request", fetch = FetchType.LAZY)
     private QuotationRequest quotationRequest;
 
     public Request() {
@@ -82,10 +86,10 @@ public class Request implements Serializable {
         this.id = id;
     }
 
-    public Request(Long id, Date createdDate, String creatorName) {
+    public Request(Long id, Date created, String creator) {
         this.id = id;
-        this.createdDate = createdDate;
-        this.creatorName = creatorName;
+        this.created = created;
+        this.creator = creator;
     }
 
     public Long getId() {
@@ -96,28 +100,28 @@ public class Request implements Serializable {
         this.id = id;
     }
 
-    public Date getCreatedDate() {
-        return createdDate;
+    public Date getCreated() {
+        return created;
     }
 
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
-    public String getCreatorName() {
-        return creatorName;
+    public String getCreator() {
+        return creator;
     }
 
-    public void setCreatorName(String creatorName) {
-        this.creatorName = creatorName;
+    public void setCreator(String creator) {
+        this.creator = creator;
     }
 
-    public Date getSendDate() {
-        return sendDate;
+    public Date getSent() {
+        return sent;
     }
 
-    public void setSendDate(Date sendDate) {
-        this.sendDate = sendDate;
+    public void setSent(Date sent) {
+        this.sent = sent;
     }
 
     @XmlTransient

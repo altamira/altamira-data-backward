@@ -21,6 +21,9 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
+
 /**
  *
  * @author Alessandro
@@ -41,10 +44,11 @@ public class QuotationRequest implements Serializable {
     @Column(name = "ID")
     private Long id;
     @JoinColumn(name = "REQUEST", referencedColumnName = "ID")
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @OneToOne(/*optional = false,*/ fetch = FetchType.LAZY)
+    @LazyToOne(value = LazyToOneOption.NO_PROXY)
     private Request request;
     @JoinColumn(name = "QUOTATION", referencedColumnName = "ID")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(/*optional = false,*/ fetch = FetchType.LAZY)
     private Quotation quotation;
 
     public QuotationRequest() {
