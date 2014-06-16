@@ -1,0 +1,32 @@
+<datasources xmlns="http://www.jboss.org/ironjacamar/schema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.jboss.org/ironjacamar/schema http://docs.jboss.org/ironjacamar/schema/datasources_1_0.xsd">
+    <!-- The datasource is bound into JNDI at this location. We reference
+        this in META-INF/persistence.xml -->
+    <!-- <datasource jndi-name="java:jboss/datasources/ticket-monsterDS" pool-name="ticket-monster" enabled="true" use-java-context="true">
+        <connection-url>
+            jdbc:h2:mem:ticket-monster;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1
+        </connection-url>
+        <driver>h2</driver>
+        <security>
+            <user-name>sa</user-name>
+            <password>sa</password>
+        </security>
+    </datasource> -->
+    <!-- <datasource jta="true" jndi-name="java:jboss/datasources/ProcessEngine" pool-name="ProcessEngine" enabled="true" use-java-context="true" use-ccm="true">
+        <connection-url>jdbc:oracle:thin:@altamira-stable-db-v1.ci3m0ww55h4q.sa-east-1.rds.amazonaws.com:1521:ORCL</connection-url>
+        <driver>oracle</driver>
+        <security>
+            <user-name>head_user_db</user-name>
+            <password>brkm39$sxz</password>
+        </security>
+    </datasource>
+    <drivers>
+        <driver name="oracle" module="com.oracle.ojdbc7">
+            <xa-datasource-class>oracle.jdbc.OracleDriver</xa-datasource-class>
+        </driver>
+        <driver name="h2" module="com.h2database.h2">
+            <xa-datasource-class>org.h2.jdbcx.JdbcDataSource</xa-datasource-class>
+        </driver>
+    </drivers> -->
+</datasources>
