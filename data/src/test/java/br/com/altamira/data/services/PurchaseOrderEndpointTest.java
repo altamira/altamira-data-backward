@@ -31,14 +31,14 @@ public class PurchaseOrderEndpointTest {
     public void _1testCreate() throws Exception {
         
         // Get current purchase planning
-        ClientRequest request = new ClientRequest("http://localhost:8080/altamira-bpm/rest/purchaseplannings/current");
+        ClientRequest request = new ClientRequest("http://localhost:8080/master-data/rest/purchaseplanning/current");
         request.accept(MediaType.APPLICATION_JSON);
             
         ClientResponse<PurchasePlanning> response = request.get(PurchasePlanning.class);
         PurchasePlanning purchasePlanning = response.getEntity();
         
         // create new Purchase Order entity
-        ClientRequest request_supplier = new ClientRequest("http://localhost:8080/altamira-bpm/rest/suppliers/"+new Long(1));
+        ClientRequest request_supplier = new ClientRequest("http://localhost:8080/master-data/rest/supplier/"+new Long(1));
         request_supplier.accept(MediaType.APPLICATION_JSON);
         
         ClientResponse<Supplier> response_supplier = request_supplier.get(Supplier.class);
