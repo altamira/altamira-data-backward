@@ -7,7 +7,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+
 import br.com.altamira.master.data.model.Request;
+import br.com.altamira.master.data.model.RequestItem;
 
 @Stateless
 public class RequestDao {
@@ -38,8 +40,14 @@ public class RequestDao {
         try {
             entity = findByIdQuery.getSingleResult();
         } catch (NoResultException nre) {
-            entity = null;
+            return null;
         }
+        
+        entity.getItems().size();
+        for (final RequestItem i : entity.getItems()) {
+        	i.getMaterial();
+        }
+
         return entity;
 	}
 	

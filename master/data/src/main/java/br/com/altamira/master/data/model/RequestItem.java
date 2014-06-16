@@ -30,7 +30,10 @@ import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import br.com.altamira.master.data.view.Views;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 /**
  *
@@ -54,20 +57,26 @@ public class RequestItem implements Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "RequestItemSequence")
     @Column(name = "ID")
     private Long id;
+    
     @Basic(optional = false)
     @Column(name = "ARRIVAL_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date arrival;
+    
     @Basic(optional = false)
     @Column(name = "WEIGHT")
     private BigDecimal weight;
+
+    @JsonIgnore
     @JoinColumn(name = "REQUEST", referencedColumnName = "ID")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JsonIgnore
     private Request request;
+    
+    @JsonView(Views.EntityView.class)
     @JoinColumn(name = "MATERIAL", referencedColumnName = "ID")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Material material;
+    
     @OneToMany(/*cascade = CascadeType.ALL,*/mappedBy = "requestItem", fetch = FetchType.LAZY)
     private Set<PurchasePlanningItem> purchasePlanningItem;
 
@@ -108,14 +117,14 @@ public class RequestItem implements Serializable {
         this.weight = weight;
     }
 
-    /*@XmlTransient
+    @XmlTransient
     public Request getRequest() {
         return request;
     }
 
     public void setRequest(Request request) {
         this.request = request;
-    }*/
+    }
 
     @XmlTransient
     public Material getMaterial() {

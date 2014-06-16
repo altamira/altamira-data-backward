@@ -1,22 +1,9 @@
 package br.com.altamira.master.data.service;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
-import javax.imageio.ImageIO;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -28,28 +15,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.Response.Status;
-
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-
-
-//import org.camunda.bpm.engine.runtime.ProcessInstance;
-//import org.camunda.bpm.engine.task.Task;
-import org.joda.time.DateTime;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import javax.ws.rs.core.UriBuilder;
 
 
 //import br.com.altamira.erp.entity.model.PurchasePlanning;
@@ -58,8 +25,15 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 //import br.com.altamira.erp.entity.services.RequestEndpoint;
 import br.com.altamira.master.data.dao.RequestDao;
 import br.com.altamira.master.data.model.Request;
-import br.com.altamira.master.data.model.RequestItem;
+import br.com.altamira.master.data.view.Views;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+
+@Stateless
 @Path("request")
 public class RequestEndpoint {
 
@@ -74,18 +48,19 @@ public class RequestEndpoint {
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		
-		Version version = new Version(1, 0, 0, "SNAPSHOT", "br.com.altamira", "master.data.service.serializer"); // maven/OSGi style version
-		SimpleModule module = new SimpleModule("RequestSerializer", version);
-		
-		objectMapper.registerModule(module.addSerializer(Request.class, new RequestSerializer()));
-		objectMapper.registerModule(module.addSerializer(RequestItem.class, new RequestItemSerializer()));
+		//Version version = new Version(1, 0, 0, "SNAPSHOT", "br.com.altamira", "master.data.service.serializer"); // maven/OSGi style version
+		//SimpleModule module = new SimpleModule("RequestSerializer", version);
+		//objectMapper.registerModule(module.addSerializer(Request.class, new RequestSerializer()));
+		//objectMapper.registerModule(module.addSerializer(RequestItem.class, new RequestItemSerializer()));
 		objectMapper.registerModule(new JodaModule());
 		
 		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		objectMapper.setDateFormat(DateFormat.getDateInstance(DateFormat.SHORT/*, new Locale("PT-BR")*/));
 		objectMapper.getSerializerProvider().setNullValueSerializer(new NullValueSerializer());
         
-		return Response.ok(objectMapper.writeValueAsString(requestDao.getAll(startPosition, maxResult))).build();
+		ObjectWriter objectWriter = objectMapper.writerWithView(Views.ListView.class);
+
+		return Response.ok(objectWriter.writeValueAsString(requestDao.getAll(startPosition, maxResult))).build();
     }
 	
     @GET
@@ -99,18 +74,15 @@ public class RequestEndpoint {
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		
-		Version version = new Version(1, 0, 0, "SNAPSHOT", "br.com.altamira", "master.data.service.serializer"); // maven/OSGi style version
-		SimpleModule module = new SimpleModule("RequestSerializer", version);
-		
-		objectMapper.registerModule(module.addSerializer(Request.class, new RequestSerializer()));
-		objectMapper.registerModule(module.addSerializer(RequestItem.class, new RequestItemSerializer()));
 		objectMapper.registerModule(new JodaModule());
 		
 		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 		objectMapper.setDateFormat(DateFormat.getDateInstance(DateFormat.SHORT/*, new Locale("PT-BR")*/));
 		objectMapper.getSerializerProvider().setNullValueSerializer(new NullValueSerializer());
     	
-    	return Response.ok(objectMapper.writeValueAsString(entity)).build();
+		ObjectWriter objectWriter = objectMapper.writerWithView(Views.EntityView.class);
+		
+    	return Response.ok(objectWriter.writeValueAsString(entity)).build();
     }
 
     @POST
@@ -119,7 +91,7 @@ public class RequestEndpoint {
     public Response create(Request entity) {
     	requestDao.create(entity);
         return Response.created(
-                UriBuilder.fromResource(Request.class)
+                UriBuilder.fromResource(RequestEndpoint.class)
                 .path(String.valueOf(entity.getId())).build())
                 .entity(entity)
                 .build();

@@ -17,6 +17,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -30,8 +31,9 @@ import javax.validation.constraints.Min;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.hibernate.annotations.LazyToOne;
-import org.hibernate.annotations.LazyToOneOption;
+import com.fasterxml.jackson.annotation.JsonView;
+
+import br.com.altamira.master.data.view.Views;
 
 /**
  *
@@ -62,8 +64,8 @@ public class Request implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date created;
 
-    @Max(50)
-    @Min(3)
+    //@Max(50)
+    //@Min(3)
     @Basic(optional = false)
     @Column(name = "CREATOR_NAME", columnDefinition = "nvarchar2(255)")
     private String creator;
@@ -72,11 +74,12 @@ public class Request implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date sent;
     
+    @JsonView(Views.EntityView.class)
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "request", fetch = FetchType.LAZY)
     private Set<RequestItem> items;
     
-    @XmlTransient
-    @OneToOne(optional = true, mappedBy = "request", fetch = FetchType.LAZY)
+    @JsonView(Views.EntityView.class)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     private QuotationRequest quotationRequest;
 
     public Request() {

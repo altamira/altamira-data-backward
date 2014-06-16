@@ -20,6 +20,7 @@ public class RequestSerializer extends JsonSerializer<Request> {
 		jgen.writeObjectField("created", value.getCreated());
 		jgen.writeStringField("creator", value.getCreator());
 		jgen.writeObjectField("sent", value.getSent() != null ? value.getSent() : "");
+		jgen.writeObjectField("items", value.getItems() != null ? value.getItems() : "[]");
 		jgen.writeEndObject();
 	}
 
