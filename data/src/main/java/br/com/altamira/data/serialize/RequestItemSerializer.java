@@ -1,4 +1,4 @@
-package br.com.altamira.data.service;
+package br.com.altamira.data.serialize;
 
 import java.io.IOException;
 

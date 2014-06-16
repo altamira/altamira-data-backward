@@ -17,7 +17,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import br.com.altamira.data.service.JSonViews.JsonEntityView;
+import br.com.altamira.data.serialize.JSonViews.JsonEntityView;
 
 /**
  *
@@ -41,7 +41,7 @@ import br.com.altamira.data.service.JSonViews.JsonEntityView;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Request.findAll", query = "SELECT r FROM Request r"),
-    @NamedQuery(name = "Request.findById", query = "SELECT r FROM Request r JOIN FETCH r.items WHERE r.id = :id"),
+    @NamedQuery(name = "Request.findById", query = "SELECT r FROM Request r WHERE r.id = :id"),
     @NamedQuery(name = "Request.findByCreated", query = "SELECT r FROM Request r WHERE r.created = :created"),
     @NamedQuery(name = "Request.findByCreator", query = "SELECT r FROM Request r WHERE r.creator = :creator"),
     @NamedQuery(name = "Request.findBySent", query = "SELECT r FROM Request r WHERE r.sent = :sent"),
@@ -61,8 +61,6 @@ public class Request implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date created;
 
-    //@Max(50)
-    //@Min(3)
     @Basic(optional = false)
     @Column(name = "CREATOR_NAME", columnDefinition = "nvarchar2(255)")
     private String creator;
@@ -72,12 +70,13 @@ public class Request implements Serializable {
     private Date sent;
     
     @JsonView(JsonEntityView.class)
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "request", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name="REQUEST")
     private Set<RequestItem> items;
     
-    @JsonView(JsonEntityView.class)
+    /*@JsonView(JsonEntityView.class)
     @ManyToOne(optional = true, fetch = FetchType.LAZY)
-    private QuotationRequest quotationRequest;
+    private QuotationRequest quotationRequest;*/
 
     public Request() {
     }
@@ -133,14 +132,14 @@ public class Request implements Serializable {
         this.items = items;
     }
 
-    @XmlTransient
+    /*@XmlTransient
     public QuotationRequest getQuotationRequest() {
         return quotationRequest;
     }
 
     public void setQuotationRequest(QuotationRequest quotationRequest) {
         this.quotationRequest = quotationRequest;
-    }
+    }*/
 
     @Override
     public int hashCode() {

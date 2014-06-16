@@ -7,25 +7,18 @@ package br.com.altamira.data.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Set;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -72,16 +65,17 @@ public class Material implements Serializable {
     private BigDecimal length;
     @Column(name = "TAX")
     private BigDecimal tax;
-    @JoinColumn(name = "COMPANY", referencedColumnName = "ID", columnDefinition = "number default 1")
-    @ManyToOne(optional = true, fetch = FetchType.EAGER)
-    private Company company;
+    
+    /*@JoinColumn(name = "COMPANY", referencedColumnName = "ID", columnDefinition = "number default 1")
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    private Company company;*/
 
-    @OneToMany(/*cascade = CascadeType.ALL,*/mappedBy = "material"/*, fetch = FetchType.LAZY*/)
-    private Set<MaterialStandard> materialStandardSet;
-    @OneToMany(/*cascade = CascadeType.ALL,*/mappedBy = "material"/*, fetch = FetchType.LAZY*/)
-    private Set<SupplierPriceList> supplierPriceListSet;
-    @OneToMany(/*cascade = CascadeType.ALL,*/mappedBy = "material"/*, fetch = FetchType.LAZY*/)
-    private Set<RequestItem> requestItemSet;
+//    @OneToMany(/*cascade = CascadeType.ALL,*/mappedBy = "material", fetch = FetchType.LAZY)
+//    private Set<MaterialStandard> materialStandardSet;
+//    @OneToMany(/*cascade = CascadeType.ALL,*/mappedBy = "material", fetch = FetchType.LAZY)
+//    private Set<SupplierPriceList> supplierPriceListSet;
+//    @OneToMany(/*cascade = CascadeType.ALL,*/mappedBy = "material", fetch = FetchType.LAZY)
+//    private Set<RequestItem> requestItemSet;
 
     public Material() {
     }
@@ -158,15 +152,15 @@ public class Material implements Serializable {
 
     //@XmlTransient
     //@JsonIgnore
-    public Company getCompany() {
+    /*public Company getCompany() {
         return company;
     }
 
     public void setCompany(Company company) {
         this.company = company;
-    }
+    }*/
     
-    @XmlTransient
+    /*@XmlTransient
     public Set<MaterialStandard> getMaterialStandardSet() {
         return materialStandardSet;
     }
@@ -192,7 +186,7 @@ public class Material implements Serializable {
 
     public void setRequestItemSet(Set<RequestItem> requestItemSet) {
         this.requestItemSet = requestItemSet;
-    }
+    }*/
 
     @Override
     public int hashCode() {

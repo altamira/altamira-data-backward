@@ -1,4 +1,4 @@
-package br.com.altamira.data.service;
+package br.com.altamira.data.serialize;
 
 public class JSonViews {
 	public static class JsonListView extends JSonViews { }

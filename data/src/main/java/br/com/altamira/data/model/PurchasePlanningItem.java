@@ -61,9 +61,9 @@ public class PurchasePlanningItem implements Serializable {
     @JoinColumn(name = "SUPPLIER", referencedColumnName = "ID")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Supplier supplier;
-    @JoinColumn(name = "REQUEST_ITEM", referencedColumnName = "ID")
+    /*@JoinColumn(name = "REQUEST_ITEM", referencedColumnName = "ID")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    private RequestItem requestItem;
+    private RequestItem requestItem;*/
     @JoinColumn(name = "PLANNING", referencedColumnName = "ID")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private PurchasePlanning purchasePlanning;
@@ -115,13 +115,13 @@ public class PurchasePlanningItem implements Serializable {
         this.supplier = supplier;
     }
 
-    public RequestItem getRequestItem() {
+    /*public RequestItem getRequestItem() {
         return requestItem;
     }
 
     public void setRequestItem(RequestItem requestItem) {
         this.requestItem = requestItem;
-    }
+    }*/
 
     @XmlTransient
     public PurchasePlanning getPurchasePlanning() {

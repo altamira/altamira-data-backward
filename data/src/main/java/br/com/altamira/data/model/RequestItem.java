@@ -8,8 +8,6 @@ package br.com.altamira.data.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Set;
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,17 +19,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import br.com.altamira.data.service.JSonViews.JsonEntityView;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import br.com.altamira.data.serialize.JSonViews.JsonEntityView;
+
 import com.fasterxml.jackson.annotation.JsonView;
 
 /**
@@ -39,7 +35,7 @@ import com.fasterxml.jackson.annotation.JsonView;
  * @author Alessandro
  */
 @Entity
-@Table(name = "REQUEST_ITEM", uniqueConstraints = @UniqueConstraint(name = "UK1", columnNames = {"REQUEST", "MATERIAL", "ARRIVAL_DATE"}))
+@Table(name = "REQUEST_ITEM"/*, uniqueConstraints = @UniqueConstraint(name = "UK1", columnNames = {"REQUEST", "MATERIAL", "ARRIVAL_DATE"})*/)
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "RequestItem.findAll", query = "SELECT r FROM RequestItem r"),
@@ -66,18 +62,18 @@ public class RequestItem implements Serializable {
     @Column(name = "WEIGHT")
     private BigDecimal weight;
 
-    @JsonIgnore
+    /*@JsonIgnore
     @JoinColumn(name = "REQUEST", referencedColumnName = "ID")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private Request request;
+    private Request request;*/
     
     @JsonView(JsonEntityView.class)
     @JoinColumn(name = "MATERIAL", referencedColumnName = "ID")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Material material;
     
-    @OneToMany(/*cascade = CascadeType.ALL,*/mappedBy = "requestItem", fetch = FetchType.LAZY)
-    private Set<PurchasePlanningItem> purchasePlanningItem;
+    /*@OneToMany(cascade = CascadeType.ALL,mappedBy = "requestItem", fetch = FetchType.LAZY)
+    private Set<PurchasePlanningItem> purchasePlanningItem;*/
 
     public RequestItem() {
     }
@@ -116,14 +112,14 @@ public class RequestItem implements Serializable {
         this.weight = weight;
     }
 
-    @XmlTransient
+    /*@XmlTransient
     public Request getRequest() {
         return request;
     }
 
     public void setRequest(Request request) {
         this.request = request;
-    }
+    }*/
 
     @XmlTransient
     public Material getMaterial() {
@@ -134,7 +130,7 @@ public class RequestItem implements Serializable {
         this.material = material;
     }
 
-    @XmlTransient
+    /*@XmlTransient
     public Set<PurchasePlanningItem> getPurchasePlanningItem() {
         return purchasePlanningItem;
     }
@@ -142,7 +138,7 @@ public class RequestItem implements Serializable {
     public void setPurchasePlanningItem(
             Set<PurchasePlanningItem> purchasePlanningItem) {
         this.purchasePlanningItem = purchasePlanningItem;
-    }
+    }*/
 
     @Override
     public int hashCode() {

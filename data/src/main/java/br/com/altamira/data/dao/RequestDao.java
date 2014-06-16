@@ -9,7 +9,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
 import br.com.altamira.data.model.Request;
-import br.com.altamira.data.model.RequestItem;
 
 @Stateless
 public class RequestDao {
@@ -43,20 +42,17 @@ public class RequestDao {
             return null;
         }
         
+        // Lazy load of items
         entity.getItems().size();
-        for (final RequestItem i : entity.getItems()) {
-        	i.getMaterial();
-        }
 
         return entity;
 	}
 	
 	public Request update(Request entity) {
-		if (entity.getId() == null) {
-			entityManager.persist(entity);
-			return entity;
+		if (entity.getId() == null && entity.getId() == 0l) {
+			return null;
 		}
-		return entityManager.merge(entity);
+		return entityManager.contains(entity) ? null : entityManager.merge(entity);
 	}
 	
 	public Request remove(Request entity) {

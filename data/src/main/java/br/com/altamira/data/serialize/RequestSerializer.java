@@ -1,12 +1,10 @@
-package br.com.altamira.data.service;
+package br.com.altamira.data.serialize;
 
 import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 import br.com.altamira.data.model.Request;
 
 public class RequestSerializer extends JsonSerializer<Request> {
@@ -20,7 +18,12 @@ public class RequestSerializer extends JsonSerializer<Request> {
 		jgen.writeObjectField("created", value.getCreated());
 		jgen.writeStringField("creator", value.getCreator());
 		jgen.writeObjectField("sent", value.getSent() != null ? value.getSent() : "");
-		jgen.writeObjectField("items", value.getItems() != null ? value.getItems() : "[]");
+		if (value.getItems() == null) {
+			jgen.writeArrayFieldStart("items");
+			jgen.writeEndArray();
+		} else {
+			jgen.writeObjectField("items", value.getItems());
+		}
 		jgen.writeEndObject();
 	}
 

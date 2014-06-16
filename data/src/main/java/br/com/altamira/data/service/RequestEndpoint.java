@@ -1,8 +1,8 @@
 package br.com.altamira.data.service;
 
-import java.text.DateFormat;
+import java.io.IOException;
+import java.util.List;
 
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -23,109 +23,124 @@ import javax.ws.rs.core.UriBuilder;
 //import br.com.altamira.erp.entity.model.RequestReportData;
 //import br.com.altamira.erp.entity.services.RequestEndpoint;
 
+import javax.ws.rs.core.UriBuilderException;
+
 import br.com.altamira.data.dao.RequestDao;
 import br.com.altamira.data.model.Request;
-import br.com.altamira.data.service.JSonViews.JsonEntityView;
-import br.com.altamira.data.service.JSonViews.JsonListView;
+import br.com.altamira.data.serialize.NullValueSerializer;
+import br.com.altamira.data.serialize.RequestSerializer;
+import br.com.altamira.data.serialize.JSonViews.JsonEntityView;
+import br.com.altamira.data.serialize.JSonViews.JsonListView;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
-@Stateless
 @Path("request")
 public class RequestEndpoint {
 
 	@Inject
 	private RequestDao requestDao;
 
-	@GET
-	@Produces("application/json")
-	public Response listAll(
-			@DefaultValue("1") @QueryParam("start") Integer startPosition,
-			@DefaultValue("10") @QueryParam("max") Integer maxResult)
-			throws JsonProcessingException {
-
+	private String serialize(List<Request> values)
+			throws IOException {
 		ObjectMapper objectMapper = new ObjectMapper();
 
-		// Version version = new Version(1, 0, 0, "SNAPSHOT", "br.com.altamira",
-		// "master.data.service.serializer"); // maven/OSGi style version
-		// SimpleModule module = new SimpleModule("RequestSerializer", version);
-		// objectMapper.registerModule(module.addSerializer(Request.class, new
-		// RequestSerializer()));
-		// objectMapper.registerModule(module.addSerializer(RequestItem.class,
-		// new RequestItemSerializer()));
-		objectMapper.registerModule(new JodaModule());
+		// objectMapper.registerModule(new JodaModule());
 
-		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-				false);
-		objectMapper.setDateFormat(DateFormat
-				.getDateInstance(DateFormat.SHORT/* , new Locale("PT-BR") */));
+		// objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
+		// false);
+		// objectMapper.setDateFormat(DateFormat.getDateInstance(DateFormat.SHORT/*
+		// , new Locale("PT-BR") */));
 		objectMapper.getSerializerProvider().setNullValueSerializer(
 				new NullValueSerializer());
 
 		ObjectWriter objectWriter = objectMapper
 				.writerWithView(JsonListView.class);
 
+		return objectWriter.writeValueAsString(values);
+	}
+
+	private String serialize(Request value) throws IOException {
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		Version version = new Version(1, 0, 0, "SNAPSHOT", "br.com.altamira",
+				"data.service.serializer"); // maven/OSGi style version
+		SimpleModule module = new SimpleModule("CustomSerializer", version);
+		module.addSerializer(Request.class, new RequestSerializer());
+		objectMapper.registerModule(module);
+
+		ObjectWriter objectWriter = objectMapper
+				.writerWithView(JsonEntityView.class);
+
+		return objectWriter.writeValueAsString(value);
+	}
+
+	@GET
+	@Produces("application/json")
+	public Response listAll(
+			@DefaultValue("1") @QueryParam("start") Integer startPosition,
+			@DefaultValue("10") @QueryParam("max") Integer maxResult)
+			throws IOException {
+
 		return Response.ok(
-				objectWriter.writeValueAsString(requestDao.getAll(
-						startPosition, maxResult))).build();
+				serialize(requestDao.getAll(startPosition, maxResult))).build();
 	}
 
 	@GET
 	@Path("/{id:[0-9][0-9]*}")
 	@Produces("application/json")
 	public Response findById(@PathParam("id") long id)
-			throws JsonProcessingException {
+			throws IOException {
+
 		Request entity = requestDao.find(id);
+
 		if (entity == null) {
 			return Response.status(Status.NOT_FOUND).build();
 		}
 
-		ObjectMapper objectMapper = new ObjectMapper();
-
-		objectMapper.registerModule(new JodaModule());
-
-		objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-				false);
-		objectMapper.setDateFormat(DateFormat
-				.getDateInstance(DateFormat.SHORT/* , new Locale("PT-BR") */));
-		objectMapper.getSerializerProvider().setNullValueSerializer(
-				new NullValueSerializer());
-
-		ObjectWriter objectWriter = objectMapper
-				.writerWithView(JsonEntityView.class);
-
-		return Response.ok(objectWriter.writeValueAsString(entity)).build();
+		return Response.ok(serialize(entity)).build();
 	}
 
 	@POST
 	@Produces("application/json")
 	@Consumes("application/json")
-	public Response create(Request entity) {
+	public Response create(Request entity) throws IllegalArgumentException,
+			UriBuilderException, IOException {
 		requestDao.create(entity);
+
 		return Response
 				.created(
 						UriBuilder.fromResource(RequestEndpoint.class)
 								.path(String.valueOf(entity.getId())).build())
-				.entity(entity).build();
+				.entity(serialize(entity)).build();
 	}
 
 	@PUT
 	@Path("/{id:[0-9][0-9]*}")
 	@Consumes("application/json")
 	@Produces("application/json")
-	public Response update(@PathParam("id") long id, Request entity) {
+	public Response update(@PathParam("id") long id, Request entity)
+			throws IllegalArgumentException, UriBuilderException,
+			IOException {
 
-		entity.setId(id);
-		requestDao.update(entity);
+		if (entity.getId() != id) {
+			return Response.status(Status.CONFLICT)
+					.entity("entity id doesn't match with resource path id")
+					.build();
+		}
+
+		entity = requestDao.update(entity);
+
+		if (entity == null) {
+			return Response.status(Status.NOT_FOUND).build();
+		}
 
 		return Response
-				.ok(UriBuilder.fromResource(Request.class)
+				.ok(UriBuilder.fromResource(RequestEndpoint.class)
 						.path(String.valueOf(entity.getId())).build())
-				.entity(entity).build();
+				.entity(serialize(entity)).build();
 	}
 
 	@DELETE
