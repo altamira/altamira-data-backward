@@ -18,11 +18,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
-//import br.com.altamira.erp.entity.model.PurchasePlanning;
-//import br.com.altamira.erp.entity.model.Quotation;
-//import br.com.altamira.erp.entity.model.RequestReportData;
-//import br.com.altamira.erp.entity.services.RequestEndpoint;
-
 import javax.ws.rs.core.UriBuilderException;
 
 import br.com.altamira.data.dao.RequestDao;

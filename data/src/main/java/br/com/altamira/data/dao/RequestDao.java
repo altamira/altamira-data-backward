@@ -3,6 +3,7 @@ package br.com.altamira.data.dao;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -10,6 +11,7 @@ import javax.persistence.TypedQuery;
 
 import br.com.altamira.data.model.Request;
 
+@Named
 @Stateless
 public class RequestDao {
 
