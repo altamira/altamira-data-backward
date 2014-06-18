@@ -17,6 +17,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.joda.time.DateTime;
@@ -42,9 +43,9 @@ public class RequestEndpointTest {
 
 	@Deployment
     public static JavaArchive createDeployment() {
-        return ShrinkWrap.create(JavaArchive.class, "RequestEndpointTest.jar")
+        return ShrinkWrap.create(JavaArchive.class)
             .addClasses(Request.class, RequestItem.class, Material.class, RequestDao.class)
-            .addClasses(GenericType.class)
+            .addClasses(GenericType.class, Asset.class)
             .addAsResource("META-INF/persistence-test.xml", "META-INF/persistence.xml")
             .addAsResource("META-INF/jbossas-ds.xml")
             .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
@@ -181,11 +182,10 @@ public class RequestEndpointTest {
 	public void testDeleteById() throws Exception {
 
 		// Do the test
-		BigDecimal requestId = new BigDecimal("1");
 		Client client = ClientBuilder.newClient();
 		client.register(JacksonFeatures.class);
 		Invocation.Builder builder = client.target(
-				"http://localhost:8080/master-data/rest/request/" + requestId)
+				"http://localhost:8080/master-data/rest/request/" + requestTest.getId())
 				.request("application/json");
 		
 		Response response = builder.delete();
@@ -195,7 +195,7 @@ public class RequestEndpointTest {
 				response.getStatus());
 
 		Invocation.Builder checkDelete = client.target(
-				"http://localhost:8080/master-data/rest/request/" + requestId)
+				"http://localhost:8080/master-data/rest/request/" + requestTest.getId())
 				.request("application/json");
 
 		Response checkResponse = checkDelete.get();

@@ -6,6 +6,7 @@
     <container qualifier="jbossas-managed" default="true">
         <configuration>
             <property name="jbossHome">/jboss-as-7.1.1.Final</property>
+            <property name="allowConnectingToRunningServer">true</property>
         </configuration>
     </container>
 </arquillian>
