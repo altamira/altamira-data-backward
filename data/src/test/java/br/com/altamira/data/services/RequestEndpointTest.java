@@ -1,11 +1,7 @@
 package br.com.altamira.data.services;
 
 import br.com.altamira.data.model.Request;
-import br.com.altamira.data.dao.RequestDao;
-
 import java.util.Date;
-import java.util.List;
-
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -16,7 +12,6 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,7 +22,6 @@ import com.fasterxml.jackson.jaxrs.annotation.JacksonFeatures;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.inject.Inject;
 
@@ -43,9 +37,6 @@ public class RequestEndpointTest {
 		WebArchive war = ShrinkWrap.create(WebArchive.class, "test.war")
             .addPackage("br.com.altamira.data.model")
             .addPackage("br.com.altamira.data.dao")
-            .addPackage("javax.ws.rs.client")
-            .addPackage("javax.ws.rs.core")
-            .addPackage("javax.ws.rs")
             .addClasses(GenericType.class)
             .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
             .addAsResource("META-INF/test-persistence.xml", "META-INF/persistence.xml")
