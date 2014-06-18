@@ -44,7 +44,9 @@ public class RequestEndpointTest {
     public static JavaArchive createDeployment() {
         return ShrinkWrap.create(JavaArchive.class, "RequestEndpointTest.jar")
             .addClasses(Request.class, RequestItem.class, Material.class, RequestDao.class)
-            .addAsResource("META-INF/persistence.xml", "META-INF/persistence.xml")
+            .addClasses(GenericType.class)
+            .addAsResource("META-INF/persistence-test.xml", "META-INF/persistence.xml")
+            .addAsResource("META-INF/jbossas-ds.xml")
             .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 	 
