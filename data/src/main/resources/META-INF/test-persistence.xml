@@ -3,7 +3,7 @@
   <persistence-unit name="MasterData-PU" transaction-type="JTA">
     <description>Master Data Persistence Unit</description>
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
-    <jta-data-source>java:jboss/datasources/MasterDataDS</jta-data-source>
+    <jta-data-source>java:jboss/datasources/ExampleDS</jta-data-source>
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
       <property name="hibernate.show_sql" value="true"/>
