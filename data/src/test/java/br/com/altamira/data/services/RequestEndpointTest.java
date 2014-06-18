@@ -1,13 +1,10 @@
 package br.com.altamira.data.services;
 
-import br.com.altamira.data.model.Material;
 import br.com.altamira.data.model.Request;
-import br.com.altamira.data.model.RequestItem;
 import br.com.altamira.data.dao.RequestDao;
 
 import java.util.List;
 
-import javax.enterprise.inject.Produces;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -16,10 +13,8 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.asset.Asset;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,27 +26,27 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 @RunWith(Arquillian.class)
 public class RequestEndpointTest {
 
 	@Inject 
-	@Named("createInstace")
+	//@Named("createInstace")
 	Request requestTest;
 
 	@Deployment
     public static JavaArchive createDeployment() {
         return ShrinkWrap.create(JavaArchive.class)
-            .addClasses(Request.class, RequestItem.class, Material.class, RequestDao.class)
-            .addClasses(GenericType.class, Asset.class)
+            .addPackage(Request.class.getPackage())
+            .addPackage(RequestDao.class.getPackage())
+            .addClasses(GenericType.class)
+            .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml")
             .addAsResource("META-INF/persistence-test.xml", "META-INF/persistence.xml")
-            .addAsResource("META-INF/jbossas-ds.xml")
-            .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+            .addAsResource("META-INF/jbossas-ds.xml");
     }
 	 
 
-	@Named
+	/*@Named
 	@Produces
 	public Request createInstace() {
 
@@ -62,7 +57,7 @@ public class RequestEndpointTest {
 		request.setSent(null);
 
 		return request;
-	}
+	}*/
 
 	@Test
 	@InSequence(1)
@@ -78,6 +73,11 @@ public class RequestEndpointTest {
 		builder.accept(MediaType.APPLICATION_JSON);
 		builder.header("Content-Type", MediaType.APPLICATION_JSON);
 
+		requestTest.setId(null);
+		requestTest.setCreated(null);
+		requestTest.setCreator("Arquillian Unit Test");
+		requestTest.setSent(null);
+		
 		Response response = builder.post(Entity.entity(requestTest,
 				MediaType.APPLICATION_JSON));
 
@@ -95,7 +95,6 @@ public class RequestEndpointTest {
 		Assert.assertEquals(requestTest, entity);
 		
 		// Check Json serialize format
-		
 		StringBuilder body = new StringBuilder();
 		
 		body.append("");
@@ -127,6 +126,8 @@ public class RequestEndpointTest {
 
 	@Test
 	@InSequence(3)
+	//@UsingDataSet("datasets/requests.yml")
+    //@ShouldMatchDataSet("datasets/expected-requests.yml")
 	public void testListAll() throws Exception {
 
 		Client client = ClientBuilder.newClient();
@@ -145,8 +146,14 @@ public class RequestEndpointTest {
 		// Check the results
 		Assert.assertEquals(Response.Status.OK.getStatusCode(),
 				response.getStatus());
+		
+		// Check Entity
 		Assert.assertNotNull(entity.isEmpty());
 		Assert.assertEquals(requestTest.getId(), entity.get(0).getId());
+		
+		// Check Json Serialize
+		String body = "[{\"id\":1,\"created\":0359372577941,\"creator\":\"Helio.Toda\",\"sent\":\"\"},{\"id\":2,\"created\":1359372577941,\"creator\":\"Helio.Toda\",\"sent\":\"\"},{\"id\":3,\"created\":1359372577941,\"creator\":\"Helio.Toda\",\"sent\":\"\"},{\"id\":4,\"created\":1359372577941,\"creator\":\"Helio.Toda\",\"sent\":\"\"},{\"id\":5,\"created\":1359372577941,\"creator\":\"Helio.Toda\",\"sent\":\"\"}]";
+		Assert.assertEquals(body, response.readEntity(String.class));
 
 	}
 
