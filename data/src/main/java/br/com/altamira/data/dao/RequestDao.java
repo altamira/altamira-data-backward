@@ -72,7 +72,7 @@ public class RequestDao {
 		return entity;
 	}
 	
-    /*public Request getCurrent() {
+    public Request getCurrent() {
         List<Request> requests;
 
         requests = (List<Request>) entityManager
@@ -81,14 +81,14 @@ public class RequestDao {
 
         if (requests.isEmpty()) {
 
-            return create(new Request(null, DateTime.now().toDate(), "system"));
+            return create(new Request(null, null, "system"));
 
         }
 
         return requests.get(0);
     }
 
-    public byte[] getRequestReportJasperFile() throws SQLException {
+    /*public byte[] getRequestReportJasperFile() throws SQLException {
         Blob tempBlob = (Blob) entityManager.createNativeQuery("SELECT JASPER_FILE FROM REQUEST_REPORT WHERE REPORT = (SELECT MAX(REPORT) FROM REQUEST_REPORT)")
                 .getSingleResult();
 

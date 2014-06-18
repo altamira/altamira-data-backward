@@ -143,7 +143,7 @@ public class RequestEndpoint {
 	public Response deleteById(@PathParam("id") long id) {
 		Request entity = requestDao.remove(id);
 		if (entity == null) {
-			return Response.status(Status.NOT_FOUND).build();
+			return Response.noContent().status(Status.NOT_FOUND).build();
 		}
 		return Response.noContent().build();
 	}
