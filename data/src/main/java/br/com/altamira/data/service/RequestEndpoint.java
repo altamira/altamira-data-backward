@@ -75,7 +75,7 @@ public class RequestEndpoint {
 	@GET
 	@Produces("application/json")
 	public Response listAll(
-			@DefaultValue("1") @QueryParam("start") Integer startPosition,
+			@DefaultValue("0") @QueryParam("start") Integer startPosition,
 			@DefaultValue("10") @QueryParam("max") Integer maxResult)
 			throws IOException {
 

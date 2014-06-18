@@ -5,7 +5,6 @@ import br.com.altamira.data.model.Request;
 import br.com.altamira.data.model.RequestItem;
 import br.com.altamira.data.dao.RequestDao;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import javax.enterprise.inject.Produces;
