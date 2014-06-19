@@ -4,8 +4,6 @@
     <description>Master Data Persistence Unit</description>
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <jta-data-source>java:jboss/datasources/ExampleDS</jta-data-source>
-    <!-- <jar-file>lib/master.data.dao-0.0.1-SNAPSHOT.jar</jar-file> -->
-    <!-- <jar-file>lib/master.data.model-0.0.1-SNAPSHOT.jar</jar-file> -->
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="update"/>
       <property name="hibernate.show_sql" value="true"/>
